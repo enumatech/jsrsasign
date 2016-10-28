@@ -427,7 +427,7 @@ KJUR.asn1.x509.TBSCertificate = function(params) {
      * tbsc.appendExtensionByName('CRLDistributionPoints', {uri: 'http://aaa.com/a.crl'});
      * tbsc.appendExtensionByName('ExtKeyUsage', {array: [{name: 'clientAuth'}]});
      * tbsc.appendExtensionByName('AuthorityKeyIdentifier', {kid: '1234ab..'});
-     * tbsc.appendExtensionByName('AuthorityInfoAccess', {array: [{accessMethod:{oid:...},accessLocation:{uri:...}}]});
+     * tbsc.appendExtensionByName('AuthorityInfoAccess', {kid: '1234ab..'});
      * @see KJUR.asn1.x509.Extension
      */
     this.appendExtensionByName = function(name, extParams) {
@@ -788,7 +788,7 @@ YAHOO.lang.extend(KJUR.asn1.x509.AuthorityKeyIdentifier, KJUR.asn1.x509.Extensio
  * AuthorityInfoAccess ASN.1 structure class
  * @name KJUR.asn1.x509.AuthorityInfoAccess
  * @class AuthorityInfoAccess ASN.1 structure class
- * @param {Array} params associative array of parameters
+ * @param {Array} params associative array of parameters (ex. {'uri': 'http://a.com/', 'critical': true})
  * @extends KJUR.asn1.x509.Extension
  * @since asn1x509 1.0.8
  * @description
@@ -805,10 +805,9 @@ YAHOO.lang.extend(KJUR.asn1.x509.AuthorityKeyIdentifier, KJUR.asn1.x509.Extensio
  * id-ad-ocsp OBJECT IDENTIFIER ::= { id-ad 1 }
  * </pre>
  * @example
- * var param = {'array':[
- *               { 'accessMethod':{'oid': '1.3.6.1.5.5.7.48.1'},
- *                 'accessLocation':{'uri': 'http://ocsp.cacert.org'}
- *               } ]};
+ * var param = {'array':[{
+ *              accessMethod:{'oid': '1.3.6.1.5.5.7.48.1'},
+ *              accessLocation:{'uri': 'http://ocsp.cacert.org'} } ]};
  * var e1 = new KJUR.asn1.x509.AuthorityInfoAccess(param);
  */
 KJUR.asn1.x509.AuthorityInfoAccess = function(params) {
