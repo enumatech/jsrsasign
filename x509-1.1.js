@@ -499,7 +499,7 @@ X509.hex2rdn = function(hRDN) {
     var hType = ASN1HEX.getDecendantHexTLVByNthList(hRDN, 0, [0, 0]);
     var hValue = ASN1HEX.getDecendantHexVByNthList(hRDN, 0, [0, 1]);
     var type = "";
-    try { type = X509.DN_ATTRHEX[hType]; } catch (ex) { type = hType; }
+    try { type = X509.DN_ATTRHEX[hType]||hType; } catch (ex) { type = hType; }
     hValue = hValue.replace(/(..)/g, "%$1");
     var value = decodeURIComponent(hValue);
     return type + "=" + value;
