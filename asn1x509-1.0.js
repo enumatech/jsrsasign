@@ -1221,6 +1221,21 @@ KJUR.asn1.x509.X500Name = function(params) {
     };
 
     /**
+     * set DN by hex string
+     * @name setStringHex
+     * @memberOf KJUR.asn1.x509.X500Name
+     * @function
+     * @param {String} newHexString distinguished name by string (ex. 3000)
+     * @description
+     * @example
+     * name = new KJUR.asn1.x509.X500Name();
+     * name.setByStringHex("3000");
+     */
+    this.setStringHex = function(newHexString) {
+        this.hTLV = newHexString;
+    };
+
+    /**
      * set DN by associative array
      * @name setByObject
      * @memberOf KJUR.asn1.x509.X500Name
@@ -1255,22 +1270,23 @@ KJUR.asn1.x509.X500Name = function(params) {
     if (typeof params != "undefined") {
         if (typeof params['str'] != "undefined") {
             this.setByString(params['str']);
+        }
+        else if (typeof params.certissuer != "undefined") {
+            var x = new X509();
+            x.hex = X509.pemToHex(params.certissuer);
+            this.hTLV = x.getIssuerHex();
+        }
+        else if (typeof params.certsubject != "undefined") {
+            var x = new X509();
+            x.hex = X509.pemToHex(params.certsubject);
+            this.hTLV = x.getSubjectHex();
+        } else if (typeof params['hex'] != "undefined") {
+            this.setStringHex(params['hex']);
         // If params is an object, then set the ASN1 array just using the object
         // attributes. This is nice for fields that have lots of special
         // characters (i.e. CN: 'http://www.github.com/kjur//').
         } else if (typeof params === "object") {
             this.setByObject(params);
-        }
-
-        if (typeof params.certissuer != "undefined") {
-            var x = new X509();
-            x.hex = X509.pemToHex(params.certissuer);
-            this.hTLV = x.getIssuerHex();
-        }
-        if (typeof params.certsubject != "undefined") {
-            var x = new X509();
-            x.hex = X509.pemToHex(params.certsubject);
-            this.hTLV = x.getSubjectHex();
         }
     }
 };
