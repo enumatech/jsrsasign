@@ -8,9 +8,9 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * Please use '-h' option for this script usage.
  * ---------------------------------------------------------
  * DESCRIPTION
@@ -40,7 +40,7 @@ program
 //console.log("program.args.length=" + program.args.length);
 
 if (program.args.length !== 3)
-  throw "wrong number of args"
+  throw new Error("wrong number of args")
 
 var keyalg = program.args[0];
 var keyopt = program.args[1];

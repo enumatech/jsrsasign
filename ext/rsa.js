@@ -109,8 +109,9 @@ function oaep_pad(s, n, hash, hashLen) {
         hash = function(s) { return hextorstr(Util.hashString(s, algName)); };
     }
 
-    if (s.length + 2 * hashLen + 2 > n) {
-        throw "Message too long for RSA";
+    if (s.length + 2 * hashLen + 2 > n)
+    {
+        throw new Error("Message too long for RSA");
     }
 
     var PS = '', i;
@@ -122,7 +123,7 @@ function oaep_pad(s, n, hash, hashLen) {
     var DB = hash('') + PS + '\x01' + s;
     var seed = new Array(hashLen);
     new SecureRandom().nextBytes(seed);
-    
+
     var dbMask = oaep_mgf1_arr(seed, DB.length, hash);
     var maskedDB = [];
 
@@ -155,7 +156,7 @@ function RSAKey() {
 // Set the public key fields N and e from hex strings
 function RSASetPublic(N,E) {
   this.isPublic = true;
-  if (typeof N !== "string") 
+  if (typeof N !== "string")
   {
     this.n = N;
     this.e = E;

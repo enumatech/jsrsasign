@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license/
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -29,7 +29,7 @@
  *   f('3080....0000', 2) ... 80 ... -1
  *
  *   Requirements:
- *   - ASN.1 type octet length MUST be 1. 
+ *   - ASN.1 type octet length MUST be 1.
  *     (i.e. ASN.1 primitives like SET, SEQUENCE, INTEGER, OCTETSTRING ...)
  */
 
@@ -239,13 +239,13 @@ ASN1HEX.getPosArrayOfChildren_AtObj = function(h, pos) {
         var pNext = ASN1HEX.getPosOfNextSibling_AtObj(h, p);
         if (pNext == null || (pNext - p0  >= (len * 2))) break;
         if (k >= 200) break;
-            
+
         a.push(pNext);
         p = pNext;
-            
+
         k++;
     }
-    
+
     return a;
 };
 
@@ -281,7 +281,7 @@ ASN1HEX.getNthChildIndex_AtObj = function(h, idx, nth) {
  * reference. Here is a sample structure and "nthList"s which
  * refers each objects.
  *
- * SQUENCE               - 
+ * SQUENCE               -
  *   SEQUENCE            - [0]
  *     IA5STRING 000     - [0, 0]
  *     UTF8STRING 001    - [0, 1]
@@ -338,7 +338,7 @@ ASN1HEX.getDecendantHexVByNthList = function(h, currentIndex, nthList) {
  * @param {String} h hexadecimal string of ASN.1 structure
  * @param {Integer} currentIndex string index to start searching in hexadecimal string "h"
  * @param {Array} nthList array of nth list index
- * @param {String} checkingTag (OPTIONAL) string of expected ASN.1 tag for nthList 
+ * @param {String} checkingTag (OPTIONAL) string of expected ASN.1 tag for nthList
  * @description
  * This static method is to get a ASN.1 value which specified "nthList" position
  * with checking expected tag "checkingTag".
@@ -347,12 +347,12 @@ ASN1HEX.getDecendantHexVByNthList = function(h, currentIndex, nthList) {
 ASN1HEX.getVbyList = function(h, currentIndex, nthList, checkingTag) {
     var idx = ASN1HEX.getDecendantIndexByNthList(h, currentIndex, nthList);
     if (idx === undefined) {
-        throw "can't find nthList object";
+        throw new Error("can't find nthList object");
     }
     if (checkingTag !== undefined) {
         if (h.substr(idx, 2) != checkingTag) {
-            throw "checking tag doesn't match: " + 
-                h.substr(idx,2) + "!=" + checkingTag;
+            throw new Error("checking tag doesn't match: " +
+                h.substr(idx,2) + "!=" + checkingTag);
         }
     }
     return ASN1HEX.getHexOfV_AtObj(h, idx);
@@ -423,7 +423,7 @@ ASN1HEX.hextooidstr = function(hex) {
  * <li>ommit long hexadecimal string</li>
  * <li>dump encapsulated OCTET STRING (good for X.509v3 extensions)</li>
  * <li>structured/primitive context specific tag support (i.e. [0], [3] ...)</li>
- * <li>automatic decode for implicit primitive context specific tag 
+ * <li>automatic decode for implicit primitive context specific tag
  * (good for X.509v3 extension value)
  *   <ul>
  *   <li>if hex starts '68747470'(i.e. http) it is decoded as utf8 encoded string.</li>
@@ -474,7 +474,7 @@ ASN1HEX.dump = function(hex, flags, idx, indent) {
 	if (hex.length <= limitNumOctet * 2) {
 	    return hex;
 	} else {
-	    var s = hex.substr(0, limitNumOctet) + 
+	    var s = hex.substr(0, limitNumOctet) +
 		    "..(total " + hex.length / 2 + "bytes).." +
 		    hex.substr(hex.length - limitNumOctet, limitNumOctet);
 	    return s;
@@ -553,7 +553,7 @@ ASN1HEX.dump = function(hex, flags, idx, indent) {
 	var aIdx = ASN1HEX.getPosArrayOfChildren_AtObj(hex, idx);
 
 	var flagsTemp = flags;
-	
+
 	if ((aIdx.length == 2 || aIdx.length == 3) &&
 	    hex.substr(aIdx[0], 2) == "06" &&
 	    hex.substr(aIdx[aIdx.length - 1], 2) == "04") { // supposed X.509v3 extension
@@ -565,7 +565,7 @@ ASN1HEX.dump = function(hex, flags, idx, indent) {
 	    flagsClone.x509ExtName = oidName;
 	    flagsTemp = flagsClone;
 	}
-	
+
 	for (var i = 0; i < aIdx.length; i++) {
 	    s = s + ASN1HEX.dump(hex, flagsTemp, aIdx[i], indent + "  ");
 	}
@@ -580,7 +580,7 @@ ASN1HEX.dump = function(hex, flags, idx, indent) {
 	return s;
     }
     var tag = parseInt(hex.substr(idx, 2), 16);
-    if ((tag & 128) != 0) { // context specific 
+    if ((tag & 128) != 0) { // context specific
 	var tagNumber = tag & 31;
 	if ((tag & 32) != 0) { // structured tag
 	    var s = indent + "[" + tagNumber + "]\n";
@@ -598,7 +598,7 @@ ASN1HEX.dump = function(hex, flags, idx, indent) {
 		tagNumber == 2) {
 		v = hextoutf8(v);
 	    }
-	    
+
 	    var s = indent + "[" + tagNumber + "] " + v + "\n";
 	    return s;
 	}

@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -30,7 +30,7 @@ if (typeof KJUR.crypto == "undefined" || !KJUR.crypto) KJUR.crypto = {};
  * @class static object for elliptic curve names and parameters
  * @description
  * This class provides parameters for named elliptic curves.
- * Currently it supoprts following curve names and aliases however 
+ * Currently it supoprts following curve names and aliases however
  * the name marked (*) are available for {@link KJUR.crypto.ECDSA} and
  * {@link KJUR.crypto.Signature} classes.
  * <ul>
@@ -54,7 +54,7 @@ KJUR.crypto.ECParameterDB = new function() {
     function hex2bi(hex) {
         return new BigInteger(hex, 16);
     }
-    
+
     /**
      * get curve inforamtion associative array for curve name or alias
      * @name getByName
@@ -75,7 +75,7 @@ KJUR.crypto.ECParameterDB = new function() {
 	if (typeof db[name] != "undefined") {
 	    return db[name];
 	}
-	throw "unregistered EC curve name: " + name;
+	throw new Error("unregistered EC curve name: " + name);
     };
 
     /**

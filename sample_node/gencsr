@@ -8,9 +8,9 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * Please use '-h' option for this script usage.
  * ---------------------------------------------------------
  * DESCRIPTION
@@ -21,7 +21,7 @@
  *   - PEM CSR file
  *
  * USAGE
- *   Genearte yyy.{pub,prv,csr} by default 
+ *   Genearte yyy.{pub,prv,csr} by default
  *   (RSA 2048 with password "passwd" and CSR for /C=US/O=TEST)
  *   % gencsr yyy
  *   RSA 1024 with password "secret" and CSR for /C=US/O=T1/CN=mydomain.com
@@ -49,7 +49,7 @@ program
 //console.log("program.args.length=" + program.args.length);
 
 if (program.args.length !== 1)
-  throw "wrong number of args"
+  throw new Error("wrong number of args")
 
 var head = program.args[0];
 var dn = program.dn;

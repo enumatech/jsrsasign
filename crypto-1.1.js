@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -21,7 +21,7 @@
  * @license <a href="http://kjur.github.io/jsrsasign/license/">MIT License</a>
  */
 
-/** 
+/**
  * kjur's class library name space
  * @name KJUR
  * @namespace kjur's class library name space
@@ -136,7 +136,7 @@ KJUR.crypto.Util = new function() {
      */
     this.getDigestInfoHex = function(hHash, alg) {
 	if (typeof this.DIGESTINFOHEAD[alg] == "undefined")
-	    throw "alg not supported in Util.DIGESTINFOHEAD: " + alg;
+	    throw new Error("alg not supported in Util.DIGESTINFOHEAD: " + alg);
 	return this.DIGESTINFOHEAD[alg] + hHash;
     };
 
@@ -155,7 +155,7 @@ KJUR.crypto.Util = new function() {
 	var pmStrLen = keySize / 4; // minimum PM length
 
 	if (hDigestInfo.length + 22 > pmStrLen) // len(0001+ff(*8)+00+hDigestInfo)=22
-	    throw "key is too short for SigAlg: keylen=" + keySize + "," + alg;
+	    throw new Error("key is too short for SigAlg: keylen=" + keySize + "," + alg);
 
 	var hHead = "0001";
 	var hTail = "00" + hDigestInfo;
@@ -282,7 +282,7 @@ KJUR.crypto.Util = new function() {
      * @since 1.1.2
      */
     this.getCryptoJSMDByName = function(s) {
-	
+
     };
 };
 
@@ -367,7 +367,7 @@ KJUR.crypto.MessageDigest = function(params) {
 	    try {
 		this.md = KJUR.crypto.Util.CRYPTOJSMESSAGEDIGESTNAME[alg].create();
 	    } catch (ex) {
-		throw "setAlgAndProvider hash alg set fail alg=" + alg + "/" + ex;
+		throw new Error("setAlgAndProvider hash alg set fail alg=" + alg + "/" + ex);
 	    }
 	    this.updateString = function(str) {
 		this.md.update(str);
@@ -394,7 +394,7 @@ KJUR.crypto.MessageDigest = function(params) {
 	    try {
 		this.md = new sjcl.hash.sha256();
 	    } catch (ex) {
-		throw "setAlgAndProvider hash alg set fail alg=" + alg + "/" + ex;
+		throw new Error("setAlgAndProvider hash alg set fail alg=" + alg + "/" + ex);
 	    }
 	    this.updateString = function(str) {
 		this.md.update(str);
@@ -429,7 +429,7 @@ KJUR.crypto.MessageDigest = function(params) {
      * md.updateString('New York');
      */
     this.updateString = function(str) {
-	throw "updateString(str) not supported for this alg/prov: " + this.algName + "/" + this.provName;
+	throw new Error("updateString(str) not supported for this alg/prov: " + this.algName + "/" + this.provName);
     };
 
     /**
@@ -443,7 +443,7 @@ KJUR.crypto.MessageDigest = function(params) {
      * md.updateHex('0afe36');
      */
     this.updateHex = function(hex) {
-	throw "updateHex(hex) not supported for this alg/prov: " + this.algName + "/" + this.provName;
+	throw new Error("updateHex(hex) not supported for this alg/prov: " + this.algName + "/" + this.provName);
     };
 
     /**
@@ -456,7 +456,7 @@ KJUR.crypto.MessageDigest = function(params) {
      * md.digest()
      */
     this.digest = function() {
-	throw "digest() not supported for this alg/prov: " + this.algName + "/" + this.provName;
+	throw new Error("digest() not supported for this alg/prov: " + this.algName + "/" + this.provName);
     };
 
     /**
@@ -470,7 +470,7 @@ KJUR.crypto.MessageDigest = function(params) {
      * md.digestString('aaa')
      */
     this.digestString = function(str) {
-	throw "digestString(str) not supported for this alg/prov: " + this.algName + "/" + this.provName;
+	throw new Error("digestString(str) not supported for this alg/prov: " + this.algName + "/" + this.provName);
     };
 
     /**
@@ -484,7 +484,7 @@ KJUR.crypto.MessageDigest = function(params) {
      * md.digestHex('0f2abd')
      */
     this.digestHex = function(hex) {
-	throw "digestHex(hex) not supported for this alg/prov: " + this.algName + "/" + this.provName;
+	throw new Error("digestHex(hex) not supported for this alg/prov: " + this.algName + "/" + this.provName);
     };
 
     if (params !== undefined) {
@@ -557,7 +557,7 @@ KJUR.crypto.MessageDigest.HASHLENGTH = {
 // === Mac ===============================================================
 
 /**
- * Mac(Message Authentication Code) class which is very similar to java.security.Mac class 
+ * Mac(Message Authentication Code) class which is very similar to java.security.Mac class
  * @name KJUR.crypto.Mac
  * @class Mac class which is very similar to java.security.Mac class
  * @param {Array} params parameters for constructor
@@ -586,7 +586,7 @@ KJUR.crypto.MessageDigest.HASHLENGTH = {
  * mac.updateString('aaa')
  * var macHex = md.doFinal()
  *
- * // other password representation 
+ * // other password representation
  * var mac = new KJUR.crypto.Mac({alg: "HmacSHA256", "pass": {"hex":  "6161"}});
  * var mac = new KJUR.crypto.Mac({alg: "HmacSHA256", "pass": {"utf8": "aa"}});
  * var mac = new KJUR.crypto.Mac({alg: "HmacSHA256", "pass": {"rstr": "\x61\x61"}});
@@ -607,7 +607,7 @@ KJUR.crypto.Mac = function(params) {
 
 	alg = alg.toLowerCase();
         if (alg.substr(0, 4) != "hmac") {
-	    throw "setAlgAndProvider unsupported HMAC alg: " + alg;
+	    throw new Error("setAlgAndProvider unsupported HMAC alg: " + alg);
 	}
 
 	if (prov === undefined) prov = KJUR.crypto.Util.DEFAULTPROVIDER[alg];
@@ -622,7 +622,7 @@ KJUR.crypto.Mac = function(params) {
 		var mdObj = KJUR.crypto.Util.CRYPTOJSMESSAGEDIGESTNAME[hashAlg];
 		this.mac = CryptoJS.algo.HMAC.create(mdObj, this.pass);
 	    } catch (ex) {
-		throw "setAlgAndProvider hash alg set fail hashAlg=" + hashAlg + "/" + ex;
+		throw new Error("setAlgAndProvider hash alg set fail hashAlg=" + hashAlg + "/" + ex);
 	    }
 	    this.updateString = function(str) {
 		this.mac.update(str);
@@ -657,7 +657,7 @@ KJUR.crypto.Mac = function(params) {
      * md.updateString('New York');
      */
     this.updateString = function(str) {
-	throw "updateString(str) not supported for this alg/prov: " + this.algProv;
+	throw new Error("updateString(str) not supported for this alg/prov: " + this.algProv);
     };
 
     /**
@@ -671,7 +671,7 @@ KJUR.crypto.Mac = function(params) {
      * md.updateHex('0afe36');
      */
     this.updateHex = function(hex) {
-	throw "updateHex(hex) not supported for this alg/prov: " + this.algProv;
+	throw new Error("updateHex(hex) not supported for this alg/prov: " + this.algProv);
     };
 
     /**
@@ -684,7 +684,7 @@ KJUR.crypto.Mac = function(params) {
      * md.digest()
      */
     this.doFinal = function() {
-	throw "digest() not supported for this alg/prov: " + this.algProv;
+	throw new Error("digest() not supported for this alg/prov: " + this.algProv);
     };
 
     /**
@@ -698,11 +698,11 @@ KJUR.crypto.Mac = function(params) {
      * md.digestString('aaa')
      */
     this.doFinalString = function(str) {
-	throw "digestString(str) not supported for this alg/prov: " + this.algProv;
+	throw new Error("digestString(str) not supported for this alg/prov: " + this.algProv);
     };
 
     /**
-     * performs final update on the digest using hexadecimal string, 
+     * performs final update on the digest using hexadecimal string,
      * then completes the digest computation
      * @name doFinalHex
      * @memberOf KJUR.crypto.Mac#
@@ -713,7 +713,7 @@ KJUR.crypto.Mac = function(params) {
      * md.digestHex('0f2abd')
      */
     this.doFinalHex = function(hex) {
-	throw "digestHex(hex) not supported for this alg/prov: " + this.algProv;
+	throw new Error("digestHex(hex) not supported for this alg/prov: " + this.algProv);
     };
 
     /**
@@ -736,7 +736,7 @@ KJUR.crypto.Mac = function(params) {
      * <li>{b64u: "Mi7-_"}: explicitly specified as Base64URL string</li>
      * </ul>
      * It is *STRONGLY RECOMMENDED* that explicit representation of password argument
-     * to avoid ambiguity. For example string  "6161" can mean a string "6161" or 
+     * to avoid ambiguity. For example string  "6161" can mean a string "6161" or
      * a hexadecimal string of "aa" (i.e. \x61\x61).
      * @example
      * mac = KJUR.crypto.Mac({'alg': 'hmacsha256'});
@@ -775,12 +775,12 @@ KJUR.crypto.Mac = function(params) {
 	}
 
 	if (typeof pass != 'object')
-	    throw "KJUR.crypto.Mac unsupported password type: " + pass;
-	
+	    throw new Error("KJUR.crypto.Mac unsupported password type: " + pass);
+
 	var hPass = null;
 	if (pass.hex  !== undefined) {
 	    if (pass.hex.length % 2 != 0 || ! pass.hex.match(/^[0-9A-Fa-f]+$/))
-		throw "Mac: wrong hex password: " + pass.hex;
+		throw new Error("Mac: wrong hex password: " + pass.hex);
 	    hPass = pass.hex;
 	}
 	if (pass.utf8 !== undefined) hPass = utf8tohex(pass.utf8);
@@ -789,7 +789,7 @@ KJUR.crypto.Mac = function(params) {
 	if (pass.b64u !== undefined) hPass = b64utohex(pass.b64u);
 
 	if (hPass == null)
-	    throw "KJUR.crypto.Mac unsupported password type: " + pass;
+	    throw new Error("KJUR.crypto.Mac unsupported password type: " + pass);
 
 	this.pass = CryptoJS.enc.Hex.parse(hPass);
     };
@@ -869,7 +869,7 @@ KJUR.crypto.Mac = function(params) {
  * sig2.init(certPEM);
  * sig.updateString('aaa');
  * var isValid = sig2.verify(hSigVal);
- * 
+ *
  * // ECDSA signing
  * var sig = new KJUR.crypto.Signature({'alg':'SHA1withECDSA'});
  * sig.init(prvKeyPEM);
@@ -933,14 +933,14 @@ KJUR.crypto.Signature = function(params) {
     this.setAlgAndProvider = function(alg, prov) {
 	this._setAlgNames();
 	if (prov != 'cryptojs/jsrsa')
-	    throw "provider not supported: " + prov;
+	    throw new Error("provider not supported: " + prov);
 
 	if (':md5:sha1:sha224:sha256:sha384:sha512:ripemd160:'.indexOf(this.mdAlgName) != -1) {
 	    try {
 		this.md = new KJUR.crypto.MessageDigest({'alg':this.mdAlgName});
 	    } catch (ex) {
-		throw "setAlgAndProvider hash alg set fail alg=" +
-                      this.mdAlgName + "/" + ex;
+		throw new Error("setAlgAndProvider hash alg set fail alg=" +
+                      this.mdAlgName + "/" + ex);
 	    }
 
 	    this.init = function(keyparam, pass) {
@@ -952,7 +952,7 @@ KJUR.crypto.Signature = function(params) {
 			keyObj = KEYUTIL.getKey(keyparam, pass);
 		    }
 		} catch (ex) {
-		    throw "init failed:" + ex;
+		    throw new Error("init failed:" + ex);
 		}
 
 		if (keyObj.isPrivate === true) {
@@ -962,7 +962,7 @@ KJUR.crypto.Signature = function(params) {
 		    this.pubKey = keyObj;
 		    this.state = "VERIFY";
 		} else {
-		    throw "init failed.:" + keyObj;
+		    throw new Error("init failed.:" + keyObj);
 		}
 	    };
 
@@ -1025,7 +1025,7 @@ KJUR.crypto.Signature = function(params) {
 		} else if (this.prvKey instanceof KJUR.crypto.DSA) {
 		    this.hSign = this.prvKey.signWithMessageHash(this.sHashHex);
 		} else {
-		    throw "Signature: unsupported public key alg: " + this.pubkeyAlgName;
+		    throw new Error("Signature: unsupported public key alg: " + this.pubkeyAlgName);
 		}
 		return this.hSign;
 	    };
@@ -1045,7 +1045,7 @@ KJUR.crypto.Signature = function(params) {
 		    return ec.verifyHex(this.sHashHex, hSigVal, this.ecpubhex);
 		} else if (this.pubKey instanceof RSAKey &&
 			   this.pubkeyAlgName == "rsaandmgf1") {
-		    return this.pubKey.verifyWithMessageHashPSS(this.sHashHex, hSigVal, 
+		    return this.pubKey.verifyWithMessageHashPSS(this.sHashHex, hSigVal,
 								this.mdAlgName,
 								this.pssSaltLen);
 		} else if (this.pubKey instanceof RSAKey &&
@@ -1056,7 +1056,7 @@ KJUR.crypto.Signature = function(params) {
 		} else if (this.pubKey instanceof KJUR.crypto.DSA) {
 		    return this.pubKey.verifyWithMessageHash(this.sHashHex, hSigVal);
 		} else {
-		    throw "Signature: unsupported public key alg: " + this.pubkeyAlgName;
+		    throw new Error("Signature: unsupported public key alg: " + this.pubkeyAlgName);
 		}
 	    };
 	}
@@ -1098,8 +1098,8 @@ KJUR.crypto.Signature = function(params) {
      * sig.init(sCertPEM)
      */
     this.init = function(key, pass) {
-	throw "init(key, pass) not supported for this alg:prov=" +
-	      this.algProvName;
+	throw new Error("init(key, pass) not supported for this alg:prov=" +
+	      this.algProvName);
     };
 
     /**
@@ -1123,8 +1123,8 @@ KJUR.crypto.Signature = function(params) {
      * sig.initVerifyByPublicKey(rsaPrvKey)
      */
     this.initVerifyByPublicKey = function(rsaPubKey) {
-	throw "initVerifyByPublicKey(rsaPubKeyy) not supported for this alg:prov=" +
-	      this.algProvName;
+	throw new Error("initVerifyByPublicKey(rsaPubKeyy) not supported for this alg:prov=" +
+	      this.algProvName);
     };
 
     /**
@@ -1140,8 +1140,8 @@ KJUR.crypto.Signature = function(params) {
      * sig.initVerifyByCertificatePEM(certPEM)
      */
     this.initVerifyByCertificatePEM = function(certPEM) {
-	throw "initVerifyByCertificatePEM(certPEM) not supported for this alg:prov=" +
-	    this.algProvName;
+	throw new Error("initVerifyByCertificatePEM(certPEM) not supported for this alg:prov=" +
+	    this.algProvName);
     };
 
     /**
@@ -1163,7 +1163,7 @@ KJUR.crypto.Signature = function(params) {
      * sig.initSign(prvKey)
      */
     this.initSign = function(prvKey) {
-	throw "initSign(prvKey) not supported for this alg:prov=" + this.algProvName;
+	throw new Error("initSign(prvKey) not supported for this alg:prov=" + this.algProvName);
     };
 
     /**
@@ -1177,7 +1177,7 @@ KJUR.crypto.Signature = function(params) {
      * sig.updateString('aaa')
      */
     this.updateString = function(str) {
-	throw "updateString(str) not supported for this alg:prov=" + this.algProvName;
+	throw new Error("updateString(str) not supported for this alg:prov=" + this.algProvName);
     };
 
     /**
@@ -1191,7 +1191,7 @@ KJUR.crypto.Signature = function(params) {
      * sig.updateHex('1f2f3f')
      */
     this.updateHex = function(hex) {
-	throw "updateHex(hex) not supported for this alg:prov=" + this.algProvName;
+	throw new Error("updateHex(hex) not supported for this alg:prov=" + this.algProvName);
     };
 
     /**
@@ -1205,7 +1205,7 @@ KJUR.crypto.Signature = function(params) {
      * var hSigValue = sig.sign()
      */
     this.sign = function() {
-	throw "sign() not supported for this alg:prov=" + this.algProvName;
+	throw new Error("sign() not supported for this alg:prov=" + this.algProvName);
     };
 
     /**
@@ -1220,7 +1220,7 @@ KJUR.crypto.Signature = function(params) {
      * var hSigValue = sig.signString('aaa')
      */
     this.signString = function(str) {
-	throw "digestString(str) not supported for this alg:prov=" + this.algProvName;
+	throw new Error("digestString(str) not supported for this alg:prov=" + this.algProvName);
     };
 
     /**
@@ -1235,7 +1235,7 @@ KJUR.crypto.Signature = function(params) {
      * var hSigValue = sig.signHex('1fdc33')
      */
     this.signHex = function(hex) {
-	throw "digestHex(hex) not supported for this alg:prov=" + this.algProvName;
+	throw new Error("digestHex(hex) not supported for this alg:prov=" + this.algProvName);
     };
 
     /**
@@ -1250,7 +1250,7 @@ KJUR.crypto.Signature = function(params) {
      * var isValid = sig.verify('1fbcefdca4823a7(snip)')
      */
     this.verify = function(hSigVal) {
-	throw "verify(hSigVal) not supported for this alg:prov=" + this.algProvName;
+	throw new Error("verify(hSigVal) not supported for this alg:prov=" + this.algProvName);
     };
 
     this.initParams = params;
@@ -1272,14 +1272,14 @@ KJUR.crypto.Signature = function(params) {
 
 	if (params['prvkeypem'] !== undefined) {
 	    if (params['prvkeypas'] !== undefined) {
-		throw "both prvkeypem and prvkeypas parameters not supported";
+		throw new Error("both prvkeypem and prvkeypas parameters not supported");
 	    } else {
 		try {
 		    var prvKey = new RSAKey();
 		    prvKey.readPrivateKeyFromPEMString(params['prvkeypem']);
 		    this.initSign(prvKey);
 		} catch (ex) {
-		    throw "fatal error to load pem private key: " + ex;
+		    throw new Error("fatal error to load pem private key: " + ex);
 		}
 	    }
 	}

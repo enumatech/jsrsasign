@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -21,17 +21,17 @@
  * @license <a href="http://kjur.github.io/jsrsasign/license/">MIT License</a>
  */
 
-/** 
+/**
  * kjur's class library name space
  * <p>
  * This name space provides following name spaces:
  * <ul>
  * <li>{@link KJUR.asn1} - ASN.1 primitive hexadecimal encoder</li>
  * <li>{@link KJUR.asn1.x509} - ASN.1 structure for X.509 certificate and CRL</li>
- * <li>{@link KJUR.crypto} - Java Cryptographic Extension(JCE) style MessageDigest/Signature 
+ * <li>{@link KJUR.crypto} - Java Cryptographic Extension(JCE) style MessageDigest/Signature
  * class and utilities</li>
  * </ul>
- * </p> 
+ * </p>
  * NOTE: Please ignore method summary and document of this namespace. This caused by a bug of jsdoc2.
  * @name KJUR
  * @namespace kjur's class library name space
@@ -42,8 +42,8 @@ if (typeof KJUR == "undefined" || !KJUR) KJUR = {};
  * kjur's ASN.1 class library name space
  * <p>
  * This is ITU-T X.690 ASN.1 DER encoder class library and
- * class structure and methods is very similar to 
- * org.bouncycastle.asn1 package of 
+ * class structure and methods is very similar to
+ * org.bouncycastle.asn1 package of
  * well known BouncyCaslte Cryptography Library.
  * <h4>PROVIDING ASN.1 PRIMITIVES</h4>
  * Here are ASN.1 DER primitive classes.
@@ -82,7 +82,7 @@ if (typeof KJUR == "undefined" || !KJUR) KJUR = {};
  * <li>{@link KJUR.asn1.x509} - RFC 5280 X.509 certificate and CRL</li>
  * </ul>
  * </p>
- * NOTE: Please ignore method summary and document of this namespace. 
+ * NOTE: Please ignore method summary and document of this namespace.
  * This caused by a bug of jsdoc2.
  * @name KJUR.asn1
  * @namespace
@@ -153,8 +153,8 @@ KJUR.asn1.ASN1Util = new function() {
         var dataB64 = hextob64(dataHex);
         var pemBody = dataB64.replace(/(.{64})/g, "$1\r\n");
         pemBody = pemBody.replace(/\r\n$/, '');
-        return "-----BEGIN " + pemHeader + "-----\r\n" + 
-            pemBody + 
+        return "-----BEGIN " + pemHeader + "-----\r\n" +
+            pemBody +
             "\r\n-----END " + pemHeader + "-----\r\n";
     };
 
@@ -197,14 +197,14 @@ KJUR.asn1.ASN1Util = new function() {
      * newObject({'prnstr': 'aaa'});
      * newObject({'seq': [{'int': 3}, {'prnstr': 'aaa'}]})
      * // ASN.1 Tagged Object
-     * newObject({'tag': {'tag': 'a1', 
+     * newObject({'tag': {'tag': 'a1',
      *                    'explicit': true,
      *                    'obj': {'seq': [{'int': 3}, {'prnstr': 'aaa'}]}}});
      * // more simple representation of ASN.1 Tagged Object
      * newObject({'tag': ['a1',
      *                    true,
      *                    {'seq': [
-     *                      {'int': 3}, 
+     *                      {'int': 3},
      *                      {'prnstr': 'aaa'}]}
      *                   ]});
      */
@@ -212,11 +212,11 @@ KJUR.asn1.ASN1Util = new function() {
         var ns1 = KJUR.asn1;
         var keys = Object.keys(param);
         if (keys.length != 1)
-            throw "key of param shall be only one.";
+            throw new Error("key of param shall be only one.");
         var key = keys[0];
 
         if (":bool:int:bitstr:octstr:null:oid:enum:utf8str:numstr:prnstr:telstr:ia5str:utctime:gentime:seq:set:tag:".indexOf(":" + key + ":") == -1)
-            throw "undefined key: " + key;
+            throw new Error("undefined key: " + key);
 
         if (key == "bool")    return new ns1.DERBoolean(param[key]);
         if (key == "int")     return new ns1.DERInteger(param[key]);
@@ -266,7 +266,7 @@ KJUR.asn1.ASN1Util = new function() {
                 if (tagParam.tag !== undefined)
                     newParam.tag = tagParam.tag;
                 if (tagParam.obj === undefined)
-                    throw "obj shall be specified for 'tag'.";
+                    throw new Error("obj shall be specified for 'tag'.");
                 newParam.obj = ns1.ASN1Util.newObject(tagParam.obj);
                 return new ns1.DERTaggedObject(newParam);
             }
@@ -285,7 +285,7 @@ KJUR.asn1.ASN1Util = new function() {
      * As for ASN.1 object representation of JSON object,
      * please see {@link newObject}.
      * @example
-     * jsonToASN1HEX({'prnstr': 'aaa'}); 
+     * jsonToASN1HEX({'prnstr': 'aaa'});
      */
     this.jsonToASN1HEX = function(param) {
         var asn1Obj = this.newObject(param);
@@ -302,7 +302,7 @@ KJUR.asn1.ASN1Util = new function() {
  * @return {String} dot noted string of object identifier
  * @since jsrsasign 4.8.3 asn1 1.0.7
  * @description
- * This static method converts from hexadecimal string representation of 
+ * This static method converts from hexadecimal string representation of
  * ASN.1 value of object identifier to oid number string.
  * @example
  * KJUR.asn1.ASN1Util.oidHexToInt('550406') &rarr; "2.5.4.6"
@@ -366,9 +366,9 @@ KJUR.asn1.ASN1Util.oidIntToHex = function(oidString) {
         }
         return h;
     };
-    
+
     if (! oidString.match(/^[0-9.]+$/)) {
-        throw "malformed oid string: " + oidString;
+        throw new Error("malformed oid string: " + oidString);
     }
     var h = '';
     var a = oidString.split('.');
@@ -415,10 +415,10 @@ KJUR.asn1.ASN1Object = function() {
      */
     this.getLengthHexFromValue = function() {
         if (typeof this.hV == "undefined" || this.hV == null) {
-            throw "this.hV is null or undefined.";
+            throw new Error("this.hV is null or undefined.");
         }
         if (this.hV.length % 2 == 1) {
-            throw "value hex must be even length: n=" + hV.length + ",v=" + this.hV;
+            throw new Error("value hex must be even length: n=" + hV.length + ",v=" + this.hV);
         }
         var n = this.hV.length / 2;
         var hN = n.toString(16);
@@ -430,7 +430,7 @@ KJUR.asn1.ASN1Object = function() {
         } else {
             var hNlen = hN.length / 2;
             if (hNlen > 15) {
-                throw "ASN.1 length too long to represent by 8x: n = " + n.toString(16);
+                throw new Error("ASN.1 length too long to represent by 8x: n = " + n.toString(16));
             }
             var head = 128 + hNlen;
             return head.toString(16) + hN;
@@ -577,7 +577,7 @@ KJUR.asn1.DERAbstractTime = function(params) {
      * format date string by Data object
      * @name formatDate
      * @memberOf KJUR.asn1.AbstractTime;
-     * @param {Date} dateObject 
+     * @param {Date} dateObject
      * @param {string} type 'utc' or 'gen'
      * @param {boolean} withMillis flag for with millisections or not
      * @description
@@ -819,7 +819,7 @@ YAHOO.lang.extend(KJUR.asn1.DERInteger, KJUR.asn1.ASN1Object);
  * @name KJUR.asn1.DERBitString
  * @class class for ASN.1 DER encoded BitString primitive
  * @extends KJUR.asn1.ASN1Object
- * @description 
+ * @description
  * <br/>
  * As for argument 'params' for constructor, you can specify one of
  * following properties:
@@ -827,7 +827,7 @@ YAHOO.lang.extend(KJUR.asn1.DERInteger, KJUR.asn1.ASN1Object);
  * <li>bin - specify binary string (ex. '10111')</li>
  * <li>array - specify array of boolean (ex. [true,false,true,true])</li>
  * <li>hex - specify hexadecimal string of ASN.1 value(V) including unused bits</li>
- * <li>obj - specify {@link KJUR.asn1.ASN1Util.newObject} 
+ * <li>obj - specify {@link KJUR.asn1.ASN1Util.newObject}
  * argument for "BitString encapsulates" structure.</li>
  * </ul>
  * NOTE1: 'params' can be omitted.<br/>
@@ -850,7 +850,7 @@ YAHOO.lang.extend(KJUR.asn1.DERInteger, KJUR.asn1.ASN1Object);
  * //     INTEGER 3
  * //     PrintableString 'aaa'
  * //     }
- * //   } 
+ * //   }
  */
 KJUR.asn1.DERBitString = function(params) {
     if (params !== undefined && typeof params.obj !== "undefined") {
@@ -883,7 +883,7 @@ KJUR.asn1.DERBitString = function(params) {
      */
     this.setUnusedBitsAndHexValue = function(unusedBits, hValue) {
         if (unusedBits < 0 || 7 < unusedBits) {
-            throw "unused bits shall be from 0 to 7: u = " + unusedBits;
+            throw new Error("unused bits shall be from 0 to 7: u = " + unusedBits);
         }
         var hUnusedBits = "0" + unusedBits;
         this.hTLV = null;
@@ -898,7 +898,7 @@ KJUR.asn1.DERBitString = function(params) {
      * @function
      * @param {String} binaryString binary value string (i.e. '10111')
      * @description
-     * Its unused bits will be calculated automatically by length of 
+     * Its unused bits will be calculated automatically by length of
      * 'binaryValue'. <br/>
      * NOTE: Trailing zeros '0' will be ignored.
      */
@@ -914,7 +914,7 @@ KJUR.asn1.DERBitString = function(params) {
             var b = binaryString.substr(i, 8);
             var x = parseInt(b, 2).toString(16);
             if (x.length == 1) x = '0' + x;
-            h += x;  
+            h += x;
         }
         this.hTLV = null;
         this.isModified = true;
@@ -991,10 +991,10 @@ YAHOO.lang.extend(KJUR.asn1.DERBitString, KJUR.asn1.ASN1Object);
  * <ul>
  * <li>str - to set a string as a value</li>
  * <li>hex - to set a hexadecimal string as a value</li>
- * <li>obj - to set a encapsulated ASN.1 value by JSON object 
+ * <li>obj - to set a encapsulated ASN.1 value by JSON object
  * which is defined in {@link KJUR.asn1.ASN1Util.newObject}</li>
  * </ul>
- * NOTE: A parameter 'obj' have been supported 
+ * NOTE: A parameter 'obj' have been supported
  * for "OCTET STRING, encapsulates" structure.
  * since asn1 1.0.11, jsrsasign 6.1.1 (2016-Sep-25).
  * @see KJUR.asn1.DERAbstractString - superclass
@@ -1005,7 +1005,7 @@ YAHOO.lang.extend(KJUR.asn1.DERBitString, KJUR.asn1.ASN1Object);
  * o = new KJUR.asn1.DEROctetString({str: "aaa"});
  * // initialize with hexadecimal string
  * o = new KJUR.asn1.DEROctetString({hex: "616161"});
- * // initialize with ASN1Util.newObject argument 
+ * // initialize with ASN1Util.newObject argument
  * o = new KJUR.asn1.DEROctetString({obj: {seq: [{int: 3}, {prnstr: 'aaa'}]}});
  * // above generates a ASN.1 data like this:
  * // OCTET STRING, encapsulates {
@@ -1013,7 +1013,7 @@ YAHOO.lang.extend(KJUR.asn1.DERBitString, KJUR.asn1.ASN1Object);
  * //     INTEGER 3
  * //     PrintableString 'aaa'
  * //     }
- * //   } 
+ * //   }
  */
 KJUR.asn1.DEROctetString = function(params) {
     if (params !== undefined && typeof params.obj !== "undefined") {
@@ -1107,7 +1107,7 @@ KJUR.asn1.DERObjectIdentifier = function(params) {
      */
     this.setValueOidString = function(oidString) {
         if (! oidString.match(/^[0-9.]+$/)) {
-            throw "malformed oid string: " + oidString;
+            throw new Error("malformed oid string: " + oidString);
         }
         var h = '';
         var a = oidString.split('.');
@@ -1139,7 +1139,7 @@ KJUR.asn1.DERObjectIdentifier = function(params) {
             var oid = KJUR.asn1.x509.OID.name2oidList[oidName];
             this.setValueOidString(oid);
         } else {
-            throw "DERObjectIdentifier oidName undefined: " + oidName;
+            throw new Error("DERObjectIdentifier oidName undefined: " + oidName);
         }
     };
 
@@ -1542,13 +1542,13 @@ YAHOO.lang.extend(KJUR.asn1.DERSet, KJUR.asn1.DERAbstractStructured);
  * @description
  * <br/>
  * Parameter 'tagNoNex' is ASN.1 tag(T) value for this object.
- * For example, if you find '[1]' tag in a ASN.1 dump, 
+ * For example, if you find '[1]' tag in a ASN.1 dump,
  * 'tagNoHex' will be 'a1'.
  * <br/>
  * As for optional argument 'params' for constructor, you can specify *ANY* of
  * following properties:
  * <ul>
- * <li>explicit - specify true if this is explicit tag otherwise false 
+ * <li>explicit - specify true if this is explicit tag otherwise false
  *     (default is 'true').</li>
  * <li>tag - specify tag (default is 'a0' which means [0])</li>
  * <li>obj - specify ASN1Object which is tagged</li>

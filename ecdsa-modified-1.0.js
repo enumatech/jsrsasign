@@ -2,7 +2,7 @@
  */
 /*
  * ecdsa-modified.js - modified Bitcoin.ECDSA class
- * 
+ *
  * Copyright (c) 2013-2016 Stefan Thomas (github.com/justmoon)
  *                         Kenji Urushima (kenji.urushima@gmail.com)
  * LICENSE
@@ -75,7 +75,7 @@ KJUR.crypto.ECDSA = function(params) {
 		}
 	    }
 	}
-	
+
 	return R;
     };
 
@@ -120,11 +120,11 @@ KJUR.crypto.ECDSA = function(params) {
     this.getPublicKeyXYHex = function() {
 	var h = this.pubKeyHex;
 	if (h.substr(0, 2) !== "04")
-	    throw "this method supports uncompressed format(04) only";
+	    throw new Error("this method supports uncompressed format(04) only");
 
 	var charlen = this.ecparams.keylen / 4;
 	if (h.length !== 2 + charlen * 2)
-	    throw "malformed public key hex length";
+	    throw new Error("malformed public key hex length");
 
 	var result = {};
 	result.x = h.substr(2, charlen);
@@ -276,7 +276,7 @@ KJUR.crypto.ECDSA = function(params) {
 	    r = sig.r;
 	    s = sig.s;
 	} else {
-	    throw "Invalid value for signature";
+	    throw new Error("Invalid value for signature");
 	}
 
 	var Q;
@@ -285,7 +285,7 @@ KJUR.crypto.ECDSA = function(params) {
 	} else if (Bitcoin.Util.isArray(pubkey)) {
 	    Q = ECPointFp.decodeFrom(this.ecparams['curve'], pubkey);
 	} else {
-	    throw "Invalid format for pubkey value, must be byte array or ECPointFp";
+	    throw new Error("Invalid format for pubkey value, must be byte array or ECPointFp");
 	}
 	var e = BigInteger.fromByteArrayUnsigned(hash);
 
@@ -381,14 +381,14 @@ KJUR.crypto.ECDSA = function(params) {
 
     this.parseSigCompact = function (sig) {
 	if (sig.length !== 65) {
-	    throw "Signature has the wrong length";
+	    throw new Error("Signature has the wrong length");
 	}
 
 	// Signature is prefixed with a type byte storing three bits of
 	// information.
 	var i = sig[0] - 27;
 	if (i < 0 || i > 7) {
-	    throw "Invalid signature type";
+	    throw new Error("Invalid signature type");
 	}
 
 	var n = this.ecparams['n'];
@@ -459,7 +459,7 @@ KJUR.crypto.ECDSA = function(params) {
 
 	Q.validate();
 	if (!this.verifyRaw(e, r, s, Q)) {
-	    throw "Pubkey recovery unsuccessful";
+	    throw new Error("Pubkey recovery unsuccessful");
 	}
 
 	var pubKey = new Bitcoin.ECKey();
@@ -489,7 +489,7 @@ KJUR.crypto.ECDSA = function(params) {
 		}
 	    } catch (e) {}
 	}
-	throw "Unable to find valid recovery factor";
+	throw new Error("Unable to find valid recovery factor");
     }
     */
 
@@ -525,7 +525,7 @@ KJUR.crypto.ECDSA.parseSigHex = function(sigHex) {
     var p = KJUR.crypto.ECDSA.parseSigHexInHexRS(sigHex);
     var biR = new BigInteger(p.r, 16);
     var biS = new BigInteger(p.s, 16);
-    
+
     return {'r': biR, 's': biS};
 };
 
@@ -547,25 +547,25 @@ KJUR.crypto.ECDSA.parseSigHex = function(sigHex) {
 KJUR.crypto.ECDSA.parseSigHexInHexRS = function(sigHex) {
     // 1. ASN.1 Sequence Check
     if (sigHex.substr(0, 2) != "30")
-	throw "signature is not a ASN.1 sequence";
+	throw new Error("signature is not a ASN.1 sequence");
 
     // 2. Items of ASN.1 Sequence Check
     var a = ASN1HEX.getPosArrayOfChildren_AtObj(sigHex, 0);
     if (a.length != 2)
-	throw "number of signature ASN.1 sequence elements seem wrong";
-    
+	throw new Error("number of signature ASN.1 sequence elements seem wrong");
+
     // 3. Integer check
     var iTLV1 = a[0];
     var iTLV2 = a[1];
     if (sigHex.substr(iTLV1, 2) != "02")
-	throw "1st item of sequene of signature is not ASN.1 integer";
+	throw new Error("1st item of sequene of signature is not ASN.1 integer");
     if (sigHex.substr(iTLV2, 2) != "02")
-	throw "2nd item of sequene of signature is not ASN.1 integer";
+	throw new Error("2nd item of sequene of signature is not ASN.1 integer");
 
     // 4. getting value
     var hR = ASN1HEX.getHexOfV_AtObj(sigHex, iTLV1);
     var hS = ASN1HEX.getHexOfV_AtObj(sigHex, iTLV2);
-    
+
     return {'r': hR, 's': hS};
 };
 
@@ -584,17 +584,17 @@ KJUR.crypto.ECDSA.asn1SigToConcatSig = function(asn1Sig) {
     var hR = pSig.r;
     var hS = pSig.s;
 
-    if (hR.substr(0, 2) == "00" && (((hR.length / 2) * 8) % (16 * 8)) == 8) 
+    if (hR.substr(0, 2) == "00" && (((hR.length / 2) * 8) % (16 * 8)) == 8)
 	hR = hR.substr(2);
 
-    if (hS.substr(0, 2) == "00" && (((hS.length / 2) * 8) % (16 * 8)) == 8) 
+    if (hS.substr(0, 2) == "00" && (((hS.length / 2) * 8) % (16 * 8)) == 8)
 	hS = hS.substr(2);
 
     if ((((hR.length / 2) * 8) % (16 * 8)) != 0)
-	throw "unknown ECDSA sig r length error";
+	throw new Error("unknown ECDSA sig r length error");
 
     if ((((hS.length / 2) * 8) % (16 * 8)) != 0)
-	throw "unknown ECDSA sig s length error";
+	throw new Error("unknown ECDSA sig s length error");
 
     return hR + hS;
 };
@@ -611,7 +611,7 @@ KJUR.crypto.ECDSA.asn1SigToConcatSig = function(asn1Sig) {
  */
 KJUR.crypto.ECDSA.concatSigToASN1Sig = function(concatSig) {
     if ((((concatSig.length / 2) * 8) % (16 * 8)) != 0)
-	throw "unknown ECDSA concatinated r-s sig  length error";
+	throw new Error("unknown ECDSA concatinated r-s sig  length error");
 
     var hR = concatSig.substr(0, concatSig.length / 2);
     var hS = concatSig.substr(concatSig.length / 2);

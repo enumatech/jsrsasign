@@ -10,7 +10,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license/
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -67,7 +67,7 @@ if (typeof KJUR.jws == "undefined" || !KJUR.jws) KJUR.jws = {};
  * <li>{@link KJUR.jws.JWS.isSafeJSONString} - check whether safe JSON string or not</li>
  * <li>{@link KJUR.jws.JWS.readSafeJSONString} - read safe JSON string only</li>
  * </li>
- * </ul> 
+ * </ul>
  *
  * <h4>SUPPORTED SIGNATURE ALGORITHMS</h4>
  * Here is supported algorithm names for {@link KJUR.jws.JWS.sign} and
@@ -104,7 +104,7 @@ if (typeof KJUR.jws == "undefined" || !KJUR.jws) KJUR.jws = {};
  * </dl>
  * <b>EXAMPLE</b><br/>
  * @example
- * // JWS signing 
+ * // JWS signing
  * sJWS = KJUR.jws.JWS.sign(null, '{"alg":"HS256", "cty":"JWT"}', '{"age": 21}', {"utf8": "password"});
  * // JWS validation
  * isValid = KJUR.jws.JWS.verify('eyJjdHkiOiJKV1QiLCJhbGc...', {"utf8": "password"});
@@ -136,7 +136,7 @@ KJUR.jws.JWS = function() {
 	}
     var matchResult = sJWS.match(/^([^.]+)\.([^.]+)\.([^.]+)$/);
 	if (matchResult == null) {
-	    throw "JWS signature is not a form of 'Head.Payload.SigValue'.";
+	    throw new Error("JWS signature is not a form of 'Head.Payload.SigValue'.");
 	}
 	var b6Head = matchResult[1];
 	var b6Payload = matchResult[2];
@@ -161,7 +161,7 @@ KJUR.jws.JWS = function() {
 	this.parsedJWS.payloadS = sPayload;
 
 	if (! ns1.isSafeJSONString(sHead, this.parsedJWS, 'headP'))
-	    throw "malformed JSON string for JWS Head: " + sHead;
+	    throw new Error("malformed JSON string for JWS Head: " + sHead);
     };
 };
 
@@ -173,11 +173,11 @@ KJUR.jws.JWS = function() {
  * @memberOf KJUR.jws.JWS
  * @function
  * @static
- * @param {String} alg JWS algorithm name to sign and force set to sHead or null 
+ * @param {String} alg JWS algorithm name to sign and force set to sHead or null
  * @param {String} spHead string or object of JWS Header
  * @param {String} spPayload string or object of JWS Payload
  * @param {String} key string of private key or mac key object to sign
- * @param {String} pass (OPTION)passcode to use encrypted asymmetric private key 
+ * @param {String} pass (OPTION)passcode to use encrypted asymmetric private key
  * @return {String} JWS signature string
  * @since jws 3.0.0
  * @see <a href="http://kjur.github.io/jsrsasign/api/symbols/KJUR.crypto.Signature.html">jsrsasign KJUR.crypto.Signature method</a>
@@ -228,7 +228,7 @@ KJUR.jws.JWS = function() {
  * // sign RS256 signature with PKCS#8 PEM RSA private key
  * sJWS = KJUR.jws.JWS.sign(null, {alg: "RS256"}, {age: 21}, "-----BEGIN PRIVATE KEY...");
  * // sign RS256 signature with PKCS#8 PEM ECC private key with passcode
- * sJWS = KJUR.jws.JWS.sign(null, {alg: "ES256"}, {age: 21}, 
+ * sJWS = KJUR.jws.JWS.sign(null, {alg: "ES256"}, {age: 21},
  *                          "-----BEGIN PRIVATE KEY...", "keypass");
  * // header and payload can be passed by both string and object
  * sJWS = KJUR.jws.JWS.sign(null, '{alg:"HS256",cty:"JWT"}', '{age:21}', "aaa");
@@ -239,7 +239,7 @@ KJUR.jws.JWS.sign = function(alg, spHeader, spPayload, key, pass) {
 
     // 1. check signatureInput(Header, Payload) is string or object
     if (typeof spHeader != 'string' && typeof spHeader != 'object')
-	throw "spHeader must be JSON string or object: " + spHeader;
+	throw new Error("spHeader must be JSON string or object: " + spHeader);
 
     if (typeof spHeader == 'object') {
 	pHeader = spHeader;
@@ -249,7 +249,7 @@ KJUR.jws.JWS.sign = function(alg, spHeader, spPayload, key, pass) {
     if (typeof spHeader == 'string') {
 	sHeader = spHeader;
 	if (! ns1.isSafeJSONString(sHeader))
-	    throw "JWS Head is not safe JSON string: " + sHeader;
+	    throw new Error("JWS Head is not safe JSON string: " + sHeader);
 	pHeader = ns1.readSafeJSONString(sHeader);
 
     }
@@ -272,16 +272,16 @@ KJUR.jws.JWS.sign = function(alg, spHeader, spPayload, key, pass) {
 
     // 4. check explicit algorithm doesn't match with JWS header.
     if (alg !== pHeader.alg)
-	throw "alg and sHeader.alg doesn't match: " + alg + "!=" + pHeader.alg;
+	throw new Error("alg and sHeader.alg doesn't match: " + alg + "!=" + pHeader.alg);
 
     // 5. set signature algorithm like SHA1withRSA
     var sigAlg = null;
     if (ns1.jwsalg2sigalg[alg] === undefined) {
-	throw "unsupported alg name: " + alg;
+	throw new Error("unsupported alg name: " + alg);
     } else {
 	sigAlg = ns1.jwsalg2sigalg[alg];
     }
-    
+
     var uHeader = utf8tob64u(sHeader);
     var uPayload = utf8tob64u(sPayload);
     var uSignatureInput = uHeader + "." + uPayload
@@ -289,7 +289,7 @@ KJUR.jws.JWS.sign = function(alg, spHeader, spPayload, key, pass) {
     var hSig = "";
     if (sigAlg.substr(0, 4) == "Hmac") {
 	if (key === undefined)
-	    throw "mac key shall be specified for HS* alg";
+	    throw new Error("mac key shall be specified for HS* alg");
 	//alert("sigAlg=" + sigAlg);
 	var mac = new KJUR.crypto.Mac({'alg': sigAlg, 'prov': 'cryptojs', 'pass': key});
 	mac.updateString(uSignatureInput);
@@ -326,8 +326,8 @@ KJUR.jws.JWS.sign = function(alg, spHeader, spPayload, key, pass) {
  * @see <a href="http://kjur.github.io/jsrsasign/api/symbols/KJUR.crypto.Mac.html">jsrsasign KJUR.crypto.Mac method</a>
  * @description
  * <p>
- * This method verifies a JSON Web Signature Compact Serialization string by the validation 
- * algorithm as described in 
+ * This method verifies a JSON Web Signature Compact Serialization string by the validation
+ * algorithm as described in
  * <a href="http://self-issued.info/docs/draft-jones-json-web-signature-04.html#anchor5">
  * the section 5 of Internet Draft draft-jones-json-web-signature-04.</a>
  * </p>
@@ -367,7 +367,7 @@ KJUR.jws.JWS.sign = function(alg, spHeader, spPayload, key, pass) {
  * @example
  * // 1) verify a RS256 JWS signature by a certificate string.
  * isValid = KJUR.jws.JWS.verify('eyJh...', '-----BEGIN...', ['RS256']);
- * 
+ *
  * // 2) verify a HS256 JWS signature by a certificate string.
  * isValid = KJUR.jws.JWS.verify('eyJh...', {hex: '6f62ad...'}, ['HS256']);
  * isValid = KJUR.jws.JWS.verify('eyJh...', {b64: 'Mi/ab8...a=='}, ['HS256']);
@@ -392,7 +392,7 @@ KJUR.jws.JWS.verify = function(sJWS, key, acceptAlgs) {
     var alg = null;
     var algType = null; // HS|RS|PS|ES|no
     if (pHeader.alg === undefined) {
-	throw "algorithm not specified in header";
+	throw new Error("algorithm not specified in header");
     } else {
 	alg = pHeader.alg;
 	algType = alg.substr(0, 2);
@@ -404,13 +404,13 @@ KJUR.jws.JWS.verify = function(sJWS, key, acceptAlgs) {
         acceptAlgs.length > 0) {
 	var acceptAlgStr = ":" + acceptAlgs.join(":") + ":";
 	if (acceptAlgStr.indexOf(":" + alg + ":") == -1) {
-	    throw "algorithm '" + alg + "' not accepted in the list";
+	    throw new Error("algorithm '" + alg + "' not accepted in the list");
 	}
     }
 
     // 3. check whether key is a proper key for alg.
     if (alg != "none" && key === null) {
-	throw "key shall be specified to verify.";
+	throw new Error("key shall be specified to verify.");
     }
 
     // 3.1. There is no key check for HS* because Mac will check it.
@@ -425,14 +425,14 @@ KJUR.jws.JWS.verify = function(sJWS, key, acceptAlgs) {
     // 3.3. check whether key is RSAKey obj if alg is RS* or PS*.
     if (algType == "RS" || algType == "PS") {
 	if (!(key instanceof RSAKey)) {
-	    throw "key shall be a RSAKey obj for RS* and PS* algs";
+	    throw new Error("key shall be a RSAKey obj for RS* and PS* algs");
 	}
     }
 
     // 3.4. check whether key is ECDSA obj if alg is ES*.
     if (algType == "ES") {
 	if (!(key instanceof KJUR.crypto.ECDSA)) {
-	    throw "key shall be a ECDSA obj for ES* algs";
+	    throw new Error("key shall be a ECDSA obj for ES* algs");
 	}
     }
 
@@ -443,18 +443,18 @@ KJUR.jws.JWS.verify = function(sJWS, key, acceptAlgs) {
     // 4. check whether alg is supported alg in jsjws.
     var sigAlg = null;
     if (jws.jwsalg2sigalg[pHeader.alg] === undefined) {
-	throw "unsupported alg name: " + alg;
+	throw new Error("unsupported alg name: " + alg);
     } else {
 	sigAlg = jws.jwsalg2sigalg[alg];
     }
 
     // 5. verify
     if (sigAlg == "none") {
-        throw "not supported";
+        throw new Error("not supported");
     } else if (sigAlg.substr(0, 4) == "Hmac") {
 	var hSig2 = null;
 	if (key === undefined)
-	    throw "hexadecimal key shall be specified for HMAC";
+	    throw new Error("hexadecimal key shall be specified for HMAC");
 	//try {
 	    var mac = new KJUR.crypto.Mac({'alg': sigAlg, 'pass': key});
 	    mac.updateString(uSignatureInput);
@@ -491,7 +491,7 @@ KJUR.jws.JWS.verify = function(sJWS, key, acceptAlgs) {
  * @throws if sJWS is malformed JWS signature
  * @since jws 3.3.3
  * @description
- * This method parses JWS signature string. 
+ * This method parses JWS signature string.
  * Resulted associative array has following properties:
  * <ul>
  * <li>headerObj - JSON object of header</li>
@@ -502,20 +502,20 @@ KJUR.jws.JWS.verify = function(sJWS, key, acceptAlgs) {
  * </ul>
  * @example
  * KJUR.jws.JWS.parse(sJWS) ->
- * { 
+ * {
  *   headerObj: {"alg": "RS256", "typ": "JWS"},
  *   payloadObj: {"product": "orange", "quantity": 100},
- *   headerPP: 
+ *   headerPP:
  *   '{
  *     "alg": "RS256",
  *     "typ": "JWS"
  *   }',
- *   payloadPP: 
+ *   payloadPP:
  *   '{
  *     "product": "orange",
  *     "quantity": 100
  *   }',
- *   sigHex: "91f3cd..." 
+ *   sigHex: "91f3cd..."
  * }
  */
 KJUR.jws.JWS.parse = function(sJWS) {
@@ -523,11 +523,11 @@ KJUR.jws.JWS.parse = function(sJWS) {
     var result = {};
     var uHeader, uPayload, uSig;
     if (a.length != 2 && a.length != 3)
-	throw "malformed sJWS: wrong number of '.' splitted elements";
+	throw new Error("malformed sJWS: wrong number of '.' splitted elements");
 
     uHeader = a[0];
     uPayload = a[1];
-    if (a.length == 3) uSig = a[2]; 
+    if (a.length == 3) uSig = a[2];
 
     result.headerObj = KJUR.jws.JWS.readSafeJSONString(b64utoutf8(uHeader));
     result.payloadObj = KJUR.jws.JWS.readSafeJSONString(b64utoutf8(uPayload));
@@ -559,7 +559,7 @@ KJUR.jws.JWS.parse = function(sJWS) {
  *
  * @description
  * This method verifies a
- * <a href="https://tools.ietf.org/html/rfc7519">RFC 7519</a> 
+ * <a href="https://tools.ietf.org/html/rfc7519">RFC 7519</a>
  * JSON Web Token(JWT).
  * It will verify following:
  * <ul>
@@ -572,12 +572,12 @@ KJUR.jws.JWS.parse = function(sJWS) {
  * </li>
  * <li>Payload.iss (issuer) - Payload.iss is included in acceptField.iss array if specified. (OPTION)</li>
  * <li>Payload.sub (subject) - Payload.sub is included in acceptField.sub array if specified. (OPTION)</li>
- * <li>Payload.aud (audience) - Payload.aud is included in acceptField.aud array or 
+ * <li>Payload.aud (audience) - Payload.aud is included in acceptField.aud array or
  *     the same as value if specified. (OPTION)</li>
  * <li>Time validity
  * <ul>
  * <li>
- * If acceptField.verifyAt as number of UNIX origin time is specifed for validation time, 
+ * If acceptField.verifyAt as number of UNIX origin time is specifed for validation time,
  * this method will verify at the time for it, otherwise current time will be used to verify.
  * </li>
  * <li>
@@ -607,9 +607,9 @@ KJUR.jws.JWS.parse = function(sJWS) {
  * <li>aud - array or string of acceptable audience name(s) (ex. ['http://foo.com'])</li>
  * <li>jti - string of acceptable JWT ID (OPTION) (ex. 'id1234')</li>
  * <li>
- * verifyAt - time to verify 'nbf', 'iat' and 'exp' in UNIX seconds 
- * (OPTION) (ex. 1377663900).  
- * If this is not specified, current time of verifier will be used. 
+ * verifyAt - time to verify 'nbf', 'iat' and 'exp' in UNIX seconds
+ * (OPTION) (ex. 1377663900).
+ * If this is not specified, current time of verifier will be used.
  * {@link KJUR.jws.IntDate} may be useful to specify it.
  * </li>
  * <li>gracePeriod - acceptable time difference between signer and verifier
@@ -651,7 +651,7 @@ KJUR.jws.JWS.verifyJWT = function(sJWT, key, acceptField) {
     // 4. algorithm ('alg' in header) check
     if (pHeader.alg === undefined) return false;
     if (acceptField.alg === undefined)
-	throw "acceptField.alg shall be specified";
+	throw new Error("acceptField.alg shall be specified");
     if (! ns1.inArray(pHeader.alg, acceptField.alg)) return false;
 
     // 5. issuer ('iss' in payload) check
@@ -675,13 +675,13 @@ KJUR.jws.JWS.verifyJWT = function(sJWT, key, acceptField) {
 	}
     }
 
-    // 8. time validity 
+    // 8. time validity
     //   (nbf - gracePeriod < now < exp + gracePeriod) && (iat - gracePeriod < now)
     var now = KJUR.jws.IntDate.getNow();
     if (acceptField.verifyAt !== undefined && typeof acceptField.verifyAt === "number") {
 	now = acceptField.verifyAt;
     }
-    if (acceptField.gracePeriod === undefined || 
+    if (acceptField.gracePeriod === undefined ||
         typeof acceptField.gracePeriod !== "number") {
 	acceptField.gracePeriod = 0;
     }
@@ -695,7 +695,7 @@ KJUR.jws.JWS.verifyJWT = function(sJWT, key, acceptField) {
     if (pPayload.nbf !== undefined && typeof pPayload.nbf == "number") {
 	if (now < pPayload.nbf - acceptField.gracePeriod) return false;
     }
-    
+
     // 8.3 issued at time 'iat' check
     if (pPayload.iat !== undefined && typeof pPayload.iat == "number") {
 	if (now < pPayload.iat - acceptField.gracePeriod) return false;
@@ -846,13 +846,13 @@ KJUR.jws.JWS.readSafeJSONString = function(s) {
  * @function
  * @static
  * @param {String} sJWS JWS signature string to be verified
- * @return {String} string of Encoded Signature Value 
+ * @return {String} string of Encoded Signature Value
  * @throws if sJWS is not comma separated string such like "Header.Payload.Signature".
  */
 KJUR.jws.JWS.getEncodedSignatureValueFromJWS = function(sJWS) {
     var matchResult = sJWS.match(/^[^.]+\.[^.]+\.([^.]+)$/);
     if (matchResult == null) {
-	throw "JWS signature is not a form of 'Head.Payload.SigValue'.";
+	throw new Error("JWS signature is not a form of 'Head.Payload.SigValue'.");
     }
     return matchResult[1];
 };
@@ -868,11 +868,11 @@ KJUR.jws.JWS.getEncodedSignatureValueFromJWS = function(sJWS) {
  * @since jsrsasign 5.0.2 jws 3.3.2
  * @description
  * This method calculates JWK thmubprint for specified JWK object
- * as described in 
+ * as described in
  * <a href="https://tools.ietf.org/html/rfc7638">RFC 7638</a>.
  * It supports all type of "kty". (i.e. "RSA", "EC" and "oct"
  * (for symmetric key))
- * Working sample is 
+ * Working sample is
  * <a href="https://kjur.github.io/jsrsasign/sample/tool_jwktp.html">here</a>.
  * @example
  * jwk = {"kty":"RSA", "n":"0vx...", "e":"AQAB", ...};
@@ -882,28 +882,28 @@ KJUR.jws.JWS.getJWKthumbprint = function(o) {
     if (o.kty !== "RSA" &&
 	o.kty !== "EC" &&
 	o.kty !== "oct")
-	throw "unsupported algorithm for JWK Thumprint";
+	throw new Error("unsupported algorithm for JWK Thumprint");
 
     // 1. get canonically ordered json string
     var s = '{';
     if (o.kty === "RSA") {
 	if (typeof o.n != "string" || typeof o.e != "string")
-	    throw "wrong n and e value for RSA key";
+	    throw new Error("wrong n and e value for RSA key");
 	s += '"' + 'e' + '":"' + o.e + '",';
 	s += '"' + 'kty' + '":"' + o.kty + '",';
 	s += '"' + 'n' + '":"' + o.n + '"}';
     } else if (o.kty === "EC") {
-	if (typeof o.crv != "string" || 
+	if (typeof o.crv != "string" ||
 	    typeof o.x != "string" ||
 	    typeof o.y != "string")
-	    throw "wrong crv, x and y value for EC key";
+	    throw new Error("wrong crv, x and y value for EC key");
 	s += '"' + 'crv' + '":"' + o.crv + '",';
 	s += '"' + 'kty' + '":"' + o.kty + '",';
 	s += '"' + 'x' + '":"' + o.x + '",';
 	s += '"' + 'y' + '":"' + o.y + '"}';
     } else if (o.kty === "oct") {
 	if (typeof o.k != "string")
-	    throw "wrong k value for oct(symmetric) key";
+	    throw new Error("wrong k value for oct(symmetric) key");
 	s += '"' + 'kty' + '":"' + o.kty + '",';
 	s += '"' + 'k' + '":"' + o.k + '"}';
     }
@@ -966,7 +966,7 @@ KJUR.jws.IntDate.get = function(s) {
     } else if (s.match(/^[0-9]+$/)) {
 	return parseInt(s);
     }
-    throw "unsupported format: " + s;
+    throw new Error("unsupported format: " + s);
 };
 
 /**
@@ -984,7 +984,7 @@ KJUR.jws.IntDate.get = function(s) {
  * Following representations are supported:
  * <ul>
  * <li>YYYYMMDDHHmmSSZ - GeneralizedTime format</li>
- * <li>YYMMDDHHmmSSZ - UTCTime format. If YY is greater or equal to 
+ * <li>YYMMDDHHmmSSZ - UTCTime format. If YY is greater or equal to
  * 50 then it represents 19YY otherwise 20YY.</li>
  * </ul>
  * @example
@@ -1003,10 +1003,10 @@ KJUR.jws.IntDate.getZulu = function(s) {
 	    } else if (0 <= year && year < 50) {
 		year = 2000 + year;
 	    } else {
-		throw "malformed year string for UTCTime";
+		throw new Error("malformed year string for UTCTime");
 	    }
 	} else {
-	    throw "malformed year string";
+	    throw new Error("malformed year string");
 	}
 	var month = parseInt(matchResult[2]) - 1;
 	var day = parseInt(matchResult[3]);
@@ -1016,7 +1016,7 @@ KJUR.jws.IntDate.getZulu = function(s) {
 	var d = new Date(Date.UTC(year, month, day, hour, min, sec));
 	return ~~(d / 1000);
     }
-    throw "unsupported format: " + s;
+    throw new Error("unsupported format: " + s);
 };
 
 /**
@@ -1072,12 +1072,12 @@ KJUR.jws.IntDate.intDate2UTCString = function(intDate) {
  */
 KJUR.jws.IntDate.intDate2Zulu = function(intDate) {
     var d = new Date(intDate * 1000);
-    var year = ("0000" + d.getUTCFullYear()).slice(-4);    
-    var mon =  ("00" + (d.getUTCMonth() + 1)).slice(-2);    
-    var day =  ("00" + d.getUTCDate()).slice(-2);    
-    var hour = ("00" + d.getUTCHours()).slice(-2);    
-    var min =  ("00" + d.getUTCMinutes()).slice(-2);    
-    var sec =  ("00" + d.getUTCSeconds()).slice(-2);    
+    var year = ("0000" + d.getUTCFullYear()).slice(-4);
+    var mon =  ("00" + (d.getUTCMonth() + 1)).slice(-2);
+    var day =  ("00" + d.getUTCDate()).slice(-2);
+    var hour = ("00" + d.getUTCHours()).slice(-2);
+    var min =  ("00" + d.getUTCMinutes()).slice(-2);
+    var sec =  ("00" + d.getUTCSeconds()).slice(-2);
     return year + mon + day + hour + min + sec + "Z";
 };
 

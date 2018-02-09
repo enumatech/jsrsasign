@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -21,7 +21,7 @@
  * @license <a href="http://kjur.github.io/jsrsasign/license/">MIT License</a>
  */
 
-/** 
+/**
  * kjur's class library name space
  * // already documented in asn1-1.0.js
  * @name KJUR
@@ -40,7 +40,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
 /**
  * kjur's ASN.1 class for Cryptographic Message Syntax(CMS)
  * <p>
- * This name space provides 
+ * This name space provides
  * <a href="https://tools.ietf.org/html/rfc5652">RFC 5652
  * Cryptographic Message Syntax (CMS)</a> SignedData generator.
  *
@@ -49,7 +49,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * <li>easily generate CMS SignedData</li>
  * <li>APIs are very similar to BouncyCastle library ASN.1 classes. So easy to learn.</li>
  * </ul>
- * 
+ *
  * <h4>PROVIDED CLASSES</h4>
  * <ul>
  * <li>{@link KJUR.asn1.cms.SignedData}</li>
@@ -66,7 +66,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * <li>{@link KJUR.asn1.cms.SigningCertificate}</li>
  * <li>{@link KJUR.asn1.cms.SigningCertificateV2}</li>
  * </ul>
- * NOTE: Please ignore method summary and document of this namespace. 
+ * NOTE: Please ignore method summary and document of this namespace.
  * This caused by a bug of jsdoc2.
  * </p>
  * @name KJUR.asn1.cms
@@ -102,14 +102,14 @@ KJUR.asn1.cms.Attribute = function(params) {
         try {
             attrValueASN1.getEncodedHex();
         } catch (ex) {
-            throw "fail valueSet.getEncodedHex in Attribute(1)/" + ex;
+            throw new Error("fail valueSet.getEncodedHex in Attribute(1)/" + ex);
         }
 
         seq = new KJUR.asn1.DERSequence({"array": [attrTypeASN1, attrValueASN1]});
         try {
             this.hTLV = seq.getEncodedHex();
         } catch (ex) {
-            throw "failed seq.getEncodedHex in Attribute(2)/" + ex;
+            throw new Error("failed seq.getEncodedHex in Attribute(2)/" + ex);
         }
 
         return this.hTLV;
@@ -221,7 +221,7 @@ KJUR.asn1.cms.SigningTime = function(params) {
         try {
             asn1.getEncodedHex();
         } catch (ex) {
-            throw "SigningTime.getEncodedHex() failed/" + ex;
+            throw new Error("SigningTime.getEncodedHex() failed/" + ex);
         }
         this.valueList = [asn1];
     }
@@ -299,7 +299,7 @@ YAHOO.lang.extend(KJUR.asn1.cms.SigningCertificate, KJUR.asn1.cms.Attribute);
  * @since jsrsasign 4.5.1 asn1cms 1.0.1
  * @description
  * <pre>
- * oid-signingCertificateV2 = 1.2.840.113549.1.9.16.2.47 
+ * oid-signingCertificateV2 = 1.2.840.113549.1.9.16.2.47
  * Attribute ::= SEQUENCE {
  *    type               OBJECT IDENTIFIER,
  *    values             AttributeSetValue }
@@ -364,7 +364,7 @@ KJUR.asn1.cms.SigningCertificateV2 = function(params) {
     if (typeof params != "undefined") {
         if (typeof params.array == "object") {
             var hashAlg = "sha256"; // sha2 default
-            if (typeof params.hashAlg == "string") 
+            if (typeof params.hashAlg == "string")
                 hashAlg = params.hashAlg;
             this.setCerts(params.array, hashAlg);
         }
@@ -492,7 +492,7 @@ KJUR.asn1.cms.AttributeList = function(params) {
 
     this.getEncodedHex = function() {
         if (typeof this.hTLV == "string") return this.hTLV;
-        var set = new KJUR.asn1.DERSet({array: this.list, 
+        var set = new KJUR.asn1.DERSet({array: this.list,
                                         sortflag: this.sortFlag});
         this.hTLV = set.getEncodedHex();
         return this.hTLV;
@@ -553,7 +553,7 @@ KJUR.asn1.cms.SignerInfo = function(params) {
             params.indexOf("END") != -1) {
 
             var certPEM = params;
-            this.dSignerIdentifier = 
+            this.dSignerIdentifier =
                 new nC.IssuerAndSerialNumber({cert: params});
         }
     };
@@ -630,7 +630,7 @@ KJUR.asn1.cms.SignerInfo = function(params) {
         //alert("sattrs.hTLV=" + this.dSignedAttrs.hTLV);
         if (this.dSignedAttrs instanceof KJUR.asn1.cms.AttributeList &&
             this.dSignedAttrs.length() == 0) {
-            throw "SignedAttrs length = 0 (empty)";
+            throw new Error("SignedAttrs length = 0 (empty)");
         }
         var sa = new nA.DERTaggedObject({obj: this.dSignedAttrs,
                                          tag: 'a0', explicit: false});
@@ -678,7 +678,7 @@ YAHOO.lang.extend(KJUR.asn1.cms.SignerInfo, KJUR.asn1.ASN1Object);
  * o.setContentValueHex('a1a2a4...'); // specify eContent data by hex string
  * o.setContentValueStr('apple');     // specify eContent data by UTF-8 string
  * // for detached contents (i.e. data not concluded in eContent)
- * o.isDetached = true;               // false as default 
+ * o.isDetached = true;               // false as default
  */
 KJUR.asn1.cms.EncapsulatedContentInfo = function(params) {
     KJUR.asn1.cms.EncapsulatedContentInfo.superclass.constructor.call(this);
@@ -689,7 +689,7 @@ KJUR.asn1.cms.EncapsulatedContentInfo = function(params) {
     this.dEContent = null;
     this.isDetached = false;
     this.eContentValueHex = null;
-    
+
     this.setContentType = function(nameOrOid) {
         if (nameOrOid.match(/^[0-2][.][0-9.]+$/)) {
             this.dEContentType = new nA.DERObjectIdentifier({oid: nameOrOid});
@@ -718,7 +718,7 @@ KJUR.asn1.cms.EncapsulatedContentInfo = function(params) {
 
     this.getEncodedHex = function() {
         if (typeof this.eContentValueHex != "string") {
-            throw "eContentValue not yet set";
+            throw new Error("eContentValue not yet set");
         }
 
         var dValue = new nA.DEROctetString({hex: this.eContentValueHex});
@@ -845,7 +845,7 @@ KJUR.asn1.cms.SignedData = function(params) {
 
     this.getEncodedHex = function() {
         if (typeof this.hTLV == "string") return this.hTLV;
-        
+
         if (this.dDigestAlgs == null) {
             var digestAlgList = [];
             for (var i = 0; i < this.digestAlgNameList.length; i++) {
@@ -870,7 +870,7 @@ KJUR.asn1.cms.SignedData = function(params) {
             }
         }
         if (this.dCerts != null) a.push(this.dCerts);
-        
+
         var dSignerInfos = new nA.DERSet({array: this.signerInfoList});
         a.push(dSignerInfos);
 
@@ -944,7 +944,7 @@ KJUR.asn1.cms.CMSUtil.newSignedData = function(param) {
             sd.addCertificatesByPEM(param.certs[i]);
         }
     }
-    
+
     sd.signerInfoList = [];
     for (var i = 0; i < param.signerInfos.length; i++) {
         var siParam = param.signerInfos[i];

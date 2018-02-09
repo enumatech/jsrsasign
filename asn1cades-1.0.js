@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -21,7 +21,7 @@
  * @license <a href="http://kjur.github.io/jsrsasign/license/">MIT License</a>
  */
 
-/** 
+/**
  * kjur's class library name space
  * // already documented in asn1-1.0.js
  * @name KJUR
@@ -40,7 +40,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
 /**
  * kjur's ASN.1 class for RFC 5126 CAdES long term signature
  * <p>
- * This name space provides 
+ * This name space provides
  * <a href="https://tools.ietf.org/html/rfc5126">RFC 5126
  * CAdES(CMS Advanced Electronic Signature)</a> generator.
  *
@@ -61,7 +61,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * </ul>
  * NOTE: Currntly CAdES-C is not supported since parser can't
  * handle unsigned attribute.
- * 
+ *
  * <h4>OTHER CLASSES</h4>
  * <ul>
  * <li>{@link KJUR.asn1.cades.OtherHashAlgAndValue}</li>
@@ -71,8 +71,8 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * </ul>
  *
  * <h4>GENERATE CAdES-BES</h4>
- * To generate CAdES-BES, {@link KJUR.asn.cades} namespace 
- * classes are not required and already {@link KJUR.asn.cms} namespace 
+ * To generate CAdES-BES, {@link KJUR.asn.cades} namespace
+ * classes are not required and already {@link KJUR.asn.cms} namespace
  * provides attributes for CAdES-BES.
  * Create {@link KJUR.asn1.cms.SignedData} with following
  * mandatory attribute in CAdES-BES:
@@ -101,7 +101,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * are automatically added by default.
  *
  * <h4>GENERATE CAdES-BES with multiple signers</h4>
- * If you need signature by multiple signers, you can 
+ * If you need signature by multiple signers, you can
  * specify one or more items in 'signerInfos' property as below.
  * <pre>
  * sd = KJUR.asn1.cms.CMSUtil.newSignedData({
@@ -153,13 +153,13 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * After a signed CAdES-BES or CAdES-EPES signature have been generated,
  * you can generate CAdES-T by adding SigningTimeStamp unsigned attribute.
  * <pre>
- * beshex = "30..."; // hex of CAdES-BES or EPES data 
+ * beshex = "30..."; // hex of CAdES-BES or EPES data
  * info = KJUR.asn1.cades.CAdESUtil.parseSignedDataForAddingUnsigned(beshex);
- * // You can refer a hexadecimal string of signature value 
+ * // You can refer a hexadecimal string of signature value
  * // in the first signerInfo in the CAdES-BES/EPES with a variable:
  * // 'info.si[0].sigval'. You need to get RFC 3161 TimeStampToken
- * // from a trusted time stamp authority. Otherwise you can also 
- * // get it by 'KJUR.asn1.tsp' module. We suppose that we could 
+ * // from a trusted time stamp authority. Otherwise you can also
+ * // get it by 'KJUR.asn1.tsp' module. We suppose that we could
  * // get proper time stamp.
  * tsthex0 = "30..."; // hex of TimeStampToken for signerInfo[0] sigval
  * si0 = info.obj.signerInfoList[0];
@@ -175,7 +175,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * <li><a href="../../test/qunit-do-asn1tsp.html">Unit test code for KJUR.asn1.tsp package (See SimpleTSAAdaptor test)</a></li>
  * <li><a href="../../test/qunit-do-asn1cms.html">Unit test code for KJUR.asn1.cms package (See newSignedData test)</a></li>
  * </ul>
- * 
+ *
  * @name KJUR.asn1.cades
  * @namespace
  */
@@ -219,7 +219,7 @@ if (typeof KJUR.asn1.cades == "undefined" || !KJUR.asn1.cades) KJUR.asn1.cades =
  *
  * SigPolicyQualifierInfo ::= SEQUENCE {
  *    sigPolicyQualifierId  SigPolicyQualifierId,
- *    sigQualifier          ANY DEFINED BY sigPolicyQualifierId } 
+ *    sigQualifier          ANY DEFINED BY sigPolicyQualifierId }
  *
  * sigpolicyQualifierIds defined in the present document:
  * SigPolicyQualifierId ::= OBJECT IDENTIFIER
@@ -329,7 +329,7 @@ KJUR.asn1.cades.SignatureTimeStamp = function(params) {
                 params.res.match(/^[0-9A-Fa-f]+$/)) {
             } else if (params.res instanceof KJUR.asn1.ASN1Object) {
             } else {
-                throw "res param shall be ASN1Object or hex string";
+                throw new Error("res param shall be ASN1Object or hex string");
             }
         }
         if (typeof params.tst != "undefined") {
@@ -342,7 +342,7 @@ KJUR.asn1.cades.SignatureTimeStamp = function(params) {
                 this.valueList = [d];
             } else if (params.tst instanceof KJUR.asn1.ASN1Object) {
             } else {
-                throw "tst param shall be ASN1Object or hex string";
+                throw new Error("tst param shall be ASN1Object or hex string");
             }
         }
     }
@@ -359,7 +359,7 @@ YAHOO.lang.extend(KJUR.asn1.cades.SignatureTimeStamp,
  * @since jsrsasign 4.7.0 asn1cades 1.0.0
  * @description
  * <pre>
- * id-aa-ets-certificateRefs OBJECT IDENTIFIER = 
+ * id-aa-ets-certificateRefs OBJECT IDENTIFIER =
  *    1.2.840.113549.1.9.16.2.21
  * CompleteCertificateRefs ::=  SEQUENCE OF OtherCertID
  * </pre>
@@ -434,7 +434,7 @@ KJUR.asn1.cades.OtherCertID = function(params) {
      * @return unspecified
      * @description
      * This method will set value by a PEM string of a certificate.
-     * This will add IssuerAndSerialNumber by default 
+     * This will add IssuerAndSerialNumber by default
      * which depends on hasIssuerSerial flag.
      */
     this.setByCertPEM = function(certPEM) {
@@ -446,7 +446,7 @@ KJUR.asn1.cades.OtherCertID = function(params) {
     this.getEncodedHex = function() {
         if (this.hTLV != null) return this.hTLV;
         if (this.dOtherCertHash == null)
-            throw "otherCertHash not set";
+            throw new Error("otherCertHash not set");
         var a = [this.dOtherCertHash];
         if (this.dIssuerSerial != null)
             a.push(this.dIssuerSerial);
@@ -512,16 +512,16 @@ KJUR.asn1.cades.OtherHash = function(params) {
      */
     this.setByCertPEM = function(certPEM) {
         if (certPEM.indexOf("-----BEGIN ") == -1)
-            throw "certPEM not to seem PEM format";
+            throw new Error("certPEM not to seem PEM format");
         var hex = X509.pemToHex(certPEM);
         var hash = KJUR.crypto.Util.hashHex(hex, this.alg);
-        this.dOtherHash = 
+        this.dOtherHash =
             new nD.OtherHashAlgAndValue({alg: this.alg, hash: hash});
     };
 
     this.getEncodedHex = function() {
         if (this.dOtherHash == null)
-            throw "OtherHash not set";
+            throw new Error("OtherHash not set");
         return this.dOtherHash.getEncodedHex();
     };
 
@@ -532,7 +532,7 @@ KJUR.asn1.cades.OtherHash = function(params) {
             } else if (params.match(/^[0-9A-Fa-f]+$/)) {
                 this.dOtherHash = new nA.DEROctetString({hex: params});
             } else {
-                throw "unsupported string value for params";
+                throw new Error("unsupported string value for params");
             }
         } else if (typeof params == "object") {
             if (typeof params.cert == "string") {
@@ -571,7 +571,7 @@ KJUR.asn1.cades.CAdESUtil.addSigTS = function(dCMS, siIdx, sigTSHex) {
  * @param {String} hex hexadecimal string of ContentInfo of CMS SignedData
  * @return {Object} associative array of parsed data
  * @description
- * This method will parse a hexadecimal string of 
+ * This method will parse a hexadecimal string of
  * ContentInfo with CMS SignedData to add a attribute
  * to unsigned attributes field in a signerInfo field.
  * Parsed result will be an associative array which has
@@ -596,14 +596,14 @@ KJUR.asn1.cades.CAdESUtil.parseSignedDataForAddingUnsigned = function(hex) {
     var r = {};
 
     // 1. not oid signed-data then error
-    if (ASN1HEX.getDecendantHexTLVByNthList(hex, 0, [0]) != 
+    if (ASN1HEX.getDecendantHexTLVByNthList(hex, 0, [0]) !=
         "06092a864886f70d010702")
-        throw "hex is not CMS SignedData";
+        throw new Error("hex is not CMS SignedData");
 
     var iSD = ASN1HEX.getDecendantIndexByNthList(hex, 0, [1, 0]);
     var aSDChildIdx = ASN1HEX.getPosArrayOfChildren_AtObj(hex, iSD);
     if (aSDChildIdx.length < 4)
-        throw "num of SignedData elem shall be 4 at least";
+        throw new Error("num of SignedData elem shall be 4 at least");
 
     // 2. HEXs of SignedData children
     // 2.1. SignedData.CMSVersion
@@ -618,7 +618,7 @@ KJUR.asn1.cades.CAdESUtil.parseSignedDataForAddingUnsigned = function(hex) {
     var iEncapContent = aSDChildIdx.shift();
     r.encapcontent = ASN1HEX.getHexOfTLV_AtObj(hex, iEncapContent);
 
-    // 2.4. [0]Certs 
+    // 2.4. [0]Certs
     r.certs = null;
     r.revs = null;
     r.si = [];
@@ -638,7 +638,7 @@ KJUR.asn1.cades.CAdESUtil.parseSignedDataForAddingUnsigned = function(hex) {
     // 2.6. SignerInfos
     var iSignerInfos = iNext;
     if (hex.substr(iSignerInfos, 2) != "31")
-        throw "Can't find signerInfos";
+        throw new Error("Can't find signerInfos");
 
     var aSIIndex = ASN1HEX.getPosArrayOfChildren_AtObj(hex, iSignerInfos);
     //alert(aSIIndex.join("-"));
@@ -685,7 +685,7 @@ KJUR.asn1.cades.CAdESUtil.parseSignedDataForAddingUnsigned = function(hex) {
  * @param {String} hex hexadecimal string of SignerInfo
  * @return {Object} associative array of parsed data
  * @description
- * This method will parse a hexadecimal string of 
+ * This method will parse a hexadecimal string of
  * SignerInfo to add a attribute
  * to unsigned attributes field in a signerInfo field.
  * Parsed result will be an associative array which has
@@ -704,7 +704,7 @@ KJUR.asn1.cades.CAdESUtil.parseSignedDataForAddingUnsigned = function(hex) {
  * future version. That's way this version provides support
  * for CAdES-T and not for CAdES-C.
  */
-KJUR.asn1.cades.CAdESUtil.parseSignerInfoForAddingUnsigned = 
+KJUR.asn1.cades.CAdESUtil.parseSignerInfoForAddingUnsigned =
     function(hex, iSI, nth) {
     var nA = KJUR.asn1;
     var nC = KJUR.asn1.cms;
@@ -713,7 +713,7 @@ KJUR.asn1.cades.CAdESUtil.parseSignerInfoForAddingUnsigned =
     //alert(aSIChildIdx.join("="));
 
     if (aSIChildIdx.length != 6)
-        throw "not supported items for SignerInfo (!=6)"; 
+        throw new Error("not supported items for SignerInfo (!=6)");
 
     // 1. SignerInfo.CMSVersion
     var iVersion = aSIChildIdx.shift();
