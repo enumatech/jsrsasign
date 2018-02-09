@@ -10,7 +10,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license/
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -55,20 +55,20 @@ if (typeof KJUR.jws == "undefined" || !KJUR.jws) KJUR.jws = {};
  * // initialize
  * jwsjs1 = new KJUR.jws.JWSJS();
  * jwsjs1.readJWSJS("{headers: [...], payload: "eyJ...", signatures: [...]}");
- * 
+ *
  * // add PS256 signature with RSA private key object
  * prvKeyObj = KEYUTIL.getKey("-----BEGIN PRIVATE KEY...");
  * jwsjs1.addSignature("PS256", {alg: "PS256"}, prvKeyObj);
  * // add HS256 signature with HMAC password "secret"
  * jwsjs1.addSignature(null, {alg: "HS256"}, {utf8: "secret"});
- * 
+ *
  * // get result finally
  * jwsjsObj1 = jwsjs1.getJSON();
  *
  * // verify all signatures
  * isValid = jwsjs1.verifyAll([["-----BEGIN CERT...", ["RS256"]],
- *                             [{utf8: "secret"}, ["HS256"]]]); 
- * 
+ *                             [{utf8: "secret"}, ["HS256"]]]);
+ *
  */
 KJUR.jws.JWSJS = function() {
     var ns1 = KJUR.jws.JWS;
@@ -106,7 +106,7 @@ KJUR.jws.JWSJS = function() {
 
 	var a = sJWS.split(".");
 	if (a.length != 3)
-	    throw "malformed input JWS";
+	    throw new Error("malformed input JWS");
 
 	this.aHeader.push(a[0]);
 	this.sPayload = a[1];
@@ -141,11 +141,11 @@ KJUR.jws.JWSJS = function() {
      */
     this.addSignature = function(alg, spHead, key, pass) {
 	if (this.sPayload === undefined || this.sPayload === null)
-	    throw "there's no JSON-JS signature to add.";
+	    throw new Error("there's no JSON-JS signature to add.");
 
 	var sigLen = this.aHeader.length;
 	if (this.aHeader.length != this.aSignature.length)
-	    throw "aHeader.length != aSignature.length";
+	    throw new Error("aHeader.length != aSignature.length");
 
 	try {
 	    var sJWS = KJUR.jws.JWS.sign(alg, spHead, this.sPayload, key, pass);
@@ -157,7 +157,7 @@ KJUR.jws.JWSJS = function() {
 	} catch(ex) {
 	    if (this.aHeader.length > sigLen) this.aHeader.pop();
 	    if (this.aSignature.length > sigLen) this.aSignature.pop();
-	    throw "addSignature failed: " + ex;
+	    throw new Error("addSignature failed: " + ex);
 	}
     };
 
@@ -175,7 +175,7 @@ KJUR.jws.JWSJS = function() {
 
 	var jws = new KJUR.jws.JWS();
 	var sJWS = jws.generateJWSByP1PrvKey(sHead, sPayload, sPemPrvKey);
-  
+
 	this.aHeader.push(jws.parsedJWS.headB64U);
 	this.aSignature.push(jws.parsedJWS.sigvalB64U);
     };
@@ -194,7 +194,7 @@ KJUR.jws.JWSJS = function() {
     this.addSignatureByHeaderPayloadKey = function(sHead, sPayload, sPemPrvKey) {
 	var jws = new KJUR.jws.JWS();
 	var sJWS = jws.generateJWSByP1PrvKey(sHead, sPayload, sPemPrvKey);
-  
+
 	this.aHeader.push(jws.parsedJWS.headB64U);
 	this.sPayload = jws.parsedJWS.payloadB64U;
 	this.aSignature.push(jws.parsedJWS.sigvalB64U);
@@ -213,7 +213,7 @@ KJUR.jws.JWSJS = function() {
      * jwsjs1 = new KJUR.jws.JWSJS();
      * jwsjs1.readJWSJS("{headers: [...], payload: "eyJ...", signatures: [...]}");
      * isValid = jwsjs1.verifyAll([["-----BEGIN CERT...", ["RS256"]],
-     *                             [{utf8: "secret"}, ["HS256"]]]); 
+     *                             [{utf8: "secret"}, ["HS256"]]]);
      */
     this.verifyAll = function(aKeyAlg) {
 	if (this.aHeader.length !== aKeyAlg.length ||
@@ -271,10 +271,10 @@ KJUR.jws.JWSJS = function() {
      * @deprecated from jwsjs 2.1.0 jsrsasign 5.1.0
      */
     this.verifyWithCerts = function(aCert) {
-	if (this.aHeader.length != aCert.length) 
-	    throw "num headers does not match with num certs";
-	if (this.aSignature.length != aCert.length) 
-	    throw "num signatures does not match with num certs";
+	if (this.aHeader.length != aCert.length)
+	    throw new Error("num headers does not match with num certs");
+	if (this.aSignature.length != aCert.length)
+	    throw new Error("num signatures does not match with num certs");
 
 	var payload = this.sPayload;
 	var errMsg = "";
@@ -310,7 +310,7 @@ KJUR.jws.JWSJS = function() {
      * @param {Object} spJWSJS string or JSON object of JWS-JS to load.
      * @throw if sJWSJS is malformed or not JSON string.
      * @description
-     * NOTE: Loading from JSON object is suppored from 
+     * NOTE: Loading from JSON object is suppored from
      * jsjws 2.1.0 jsrsasign 5.1.0 (2016-Sep-06).
      * @example
      * // load JWSJS from string
@@ -324,7 +324,7 @@ KJUR.jws.JWSJS = function() {
     this.readJWSJS = function(spJWSJS) {
 	if (typeof spJWSJS === "string") {
 	    var oJWSJS = ns1.readSafeJSONString(spJWSJS);
-	    if (oJWSJS == null) throw "argument is not safe JSON object string";
+	    if (oJWSJS == null) throw new Error("argument is not safe JSON object string");
 
 	    this.aHeader = oJWSJS.headers;
 	    this.sPayload = oJWSJS.payload;
@@ -334,20 +334,20 @@ KJUR.jws.JWSJS = function() {
 		if (spJWSJS.headers.length > 0) {
 		    this.aHeader = spJWSJS.headers;
 		} else {
-		    throw "malformed header";
+		    throw new Error("malformed header");
 		}
 		if (typeof spJWSJS.payload === "string") {
 		    this.sPayload = spJWSJS.payload;
 		} else {
-		    throw "malformed signatures";
+		    throw new Error("malformed signatures");
 		}
 		if (spJWSJS.signatures.length > 0) {
 		    this.signatures = spJWSJS.signatures;
 		} else {
-		    throw "malformed signatures";
+		    throw new Error("malformed signatures");
 		}
 	    } catch (ex) {
-		throw "malformed JWS-JS JSON object: " + ex;
+		throw new Error("malformed JWS-JS JSON object: " + ex);
 	    }
 	}
     };
@@ -367,7 +367,7 @@ KJUR.jws.JWSJS = function() {
     this.getJSON = function() {
 	return { "headers": this.aHeader,
 		 "payload": this.sPayload,
-		 "signatures": this.aSignature }; 
+		 "signatures": this.aSignature };
     };
 
     /**
@@ -378,7 +378,7 @@ KJUR.jws.JWSJS = function() {
      * @return 1 if there is no signatures in this object, otherwise 0.
      */
     this.isEmpty = function() {
-	if (this.aHeader.length == 0) return 1; 
+	if (this.aHeader.length == 0) return 1;
 	return 0;
     };
 };

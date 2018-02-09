@@ -8,9 +8,9 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * Please use '-h' option for this script usage.
  */
 
@@ -34,7 +34,7 @@ program
   .parse(process.argv);
 
 if (program.args.length !== 1)
-  throw "wrong number of arguments";
+  throw new Error("wrong number of arguments");
 
 var jwt;
 try {
@@ -50,7 +50,7 @@ var pubKeyObj;
 var acceptField = {};
 
 if (! JWS.inArray(program.passtype, ['utf8', 'hex', 'b64', 'b64u']))
-  throw "unsupported HS* password type: " + program.passtype;
+  throw new Error("unsupported HS* password type: " + program.passtype);
 if (program.passtype !== undefined && program.pass !== undefined) {
   pass = {};
   pass[program.passtype] = program.pass;
@@ -64,9 +64,9 @@ if (program.pubkey !== undefined) {
 /*
  * set acceptField
  */
-if (pass !== undefined) 
+if (pass !== undefined)
   acceptField.alg = ['HS256', 'HS384', 'HS512'];
-if (pubKeyObj !== undefined) 
+if (pubKeyObj !== undefined)
   acceptField.alg = ['RS256', 'RS384', 'RS512',
                      'PS256', 'PS384', 'PS512',
                      'ES256', 'ES384', 'ES512'];

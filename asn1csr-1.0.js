@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -62,7 +62,7 @@ if (typeof KJUR.asn1.csr == "undefined" || !KJUR.asn1.csr) KJUR.asn1.csr = {};
  * csr = new KJUR.asn1.csr.CertificationRequest({'csrinfo': csri});
  * csr.sign("SHA256withRSA", prvKeyObj);
  * pem = csr.getPEMString();
- * 
+ *
  * // -- DEFINITION OF ASN.1 SYNTAX --
  * // CertificationRequest ::= SEQUENCE {
  * //   certificationRequestInfo CertificationRequestInfo,
@@ -99,7 +99,7 @@ KJUR.asn1.csr.CertificationRequest = function(params) {
     this.sign = function(sigAlgName, prvKeyObj) {
 	if (this.prvKey == null) this.prvKey = prvKeyObj;
 
-	this.asn1SignatureAlg = 
+	this.asn1SignatureAlg =
 	    new KJUR.asn1.x509.AlgorithmIdentifier({'name': sigAlgName});
 
         sig = new KJUR.crypto.Signature({'alg': sigAlgName});
@@ -141,7 +141,7 @@ KJUR.asn1.csr.CertificationRequest = function(params) {
 
     this.getEncodedHex = function() {
         if (this.isModified == false && this.hTLV != null) return this.hTLV;
-        throw "not signed yet";
+        throw new Error("not signed yet");
     };
 
     if (typeof params != "undefined") {
@@ -209,8 +209,8 @@ KJUR.asn1.csr.CertificationRequestInfo = function(params) {
      * @param {Object} keyParam public key parameter which passed to {@link KEYUTIL.getKey} argument
      * @description
      * @example
-     * csri.setSubjectPublicKeyByGetKeyParam(certPEMString); // or 
-     * csri.setSubjectPublicKeyByGetKeyParam(pkcs8PublicKeyPEMString); // or 
+     * csri.setSubjectPublicKeyByGetKeyParam(certPEMString); // or
+     * csri.setSubjectPublicKeyByGetKeyParam(pkcs8PublicKeyPEMString); // or
      * csir.setSubjectPublicKeyByGetKeyParam(kjurCryptoECDSAKeyObject); // et.al.
      * @see KJUR.asn1.x509.SubjectPublicKeyInfo
      * @see KEYUTIL.getKey
@@ -277,7 +277,7 @@ KJUR.asn1.csr.CSRUtil = new function() {
  *   sbjprvkey: prvKeyObj
  * });
  *
- * // 2) by private/public key PEM 
+ * // 2) by private/public key PEM
  * pem = KJUR.asn1.csr.CSRUtil.newCSRPEM({
  *   subject: {str: '/C=US/O=Test/CN=example.com'},
  *   sbjpubkey: pubKeyPEM,
@@ -297,10 +297,10 @@ KJUR.asn1.csr.CSRUtil = new function() {
 KJUR.asn1.csr.CSRUtil.newCSRPEM = function(param) {
     var ns1 = KJUR.asn1.csr;
 
-    if (param.subject === undefined) throw "parameter subject undefined";
-    if (param.sbjpubkey === undefined) throw "parameter sbjpubkey undefined";
-    if (param.sigalg === undefined) throw "parameter sigalg undefined";
-    if (param.sbjprvkey === undefined) throw "parameter sbjpubkey undefined";
+    if (param.subject === undefined) throw new Error("parameter subject undefined");
+    if (param.sbjpubkey === undefined) throw new Error("parameter sbjpubkey undefined");
+    if (param.sigalg === undefined) throw new Error("parameter sigalg undefined");
+    if (param.sbjprvkey === undefined) throw new Error("parameter sbjpubkey undefined");
 
     var csri = new ns1.CertificationRequestInfo();
     csri.setSubjectByParam(param.subject);
@@ -343,7 +343,7 @@ KJUR.asn1.csr.CSRUtil.getInfo = function(sPEM) {
     result.pubkey = {};
 
     if (sPEM.indexOf("-----BEGIN CERTIFICATE REQUEST") == -1)
-	throw "argument is not PEM file";
+	throw new Error("argument is not PEM file");
 
     var hex = KEYUTIL.getHexFromPEM(sPEM, "CERTIFICATE REQUEST");
 

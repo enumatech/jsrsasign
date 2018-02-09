@@ -77,7 +77,7 @@ function oaep_unpad(d, n, hash, hashLen)
 
     if (d.length < 2 * hashLen + 2)
     {
-        throw "Cipher too short";
+        throw new Error("Cipher too short");
     }
 
     var maskedSeed = d.substr(1, hashLen)
@@ -105,7 +105,7 @@ function oaep_unpad(d, n, hash, hashLen)
 
     if (DB.substr(0, hashLen) !== hash(''))
     {
-        throw "Hash mismatch";
+        throw new Error("Hash mismatch");
     }
 
     DB = DB.substr(hashLen);
@@ -115,7 +115,7 @@ function oaep_unpad(d, n, hash, hashLen)
 
     if (last_zero + 1 != first_one)
     {
-        throw "Malformed data";
+        throw new Error("Malformed data");
     }
 
     return DB.substr(first_one + 1);
@@ -142,10 +142,10 @@ function RSASetPrivate(N,E,D) {
 // Set the private key fields N, e, d and CRT params from hex strings
 function RSASetPrivateEx(N,E,D,P,Q,DP,DQ,C) {
   this.isPrivate = true;
-  if (N == null) throw "RSASetPrivateEx N == null";
-  if (E == null) throw "RSASetPrivateEx E == null";
-  if (N.length == 0) throw "RSASetPrivateEx N.length == 0";
-  if (E.length == 0) throw "RSASetPrivateEx E.length == 0";
+  if (N == null) throw new Error("RSASetPrivateEx N == null");
+  if (E == null) throw new Error("RSASetPrivateEx E == null");
+  if (N.length == 0) throw new Error("RSASetPrivateEx N.length == 0");
+  if (E.length == 0) throw new Error("RSASetPrivateEx E.length == 0");
 
   if (N != null && E != null && N.length > 0 && E.length > 0) {
     this.n = parseBigInt(N,16);
@@ -186,7 +186,7 @@ function RSAGenerate(B,E) {
     var phi = p1.multiply(q1);
     if(phi.gcd(ee).compareTo(BigInteger.ONE) == 0) {
       this.n = this.p.multiply(this.q);	// this.n = p * q
-      this.d = ee.modInverse(phi);	// this.d = 
+      this.d = ee.modInverse(phi);	// this.d =
       this.dmp1 = this.d.mod(p1);	// this.dmp1 = d mod (p - 1)
       this.dmq1 = this.d.mod(q1);	// this.dmq1 = d mod (q - 1)
       this.coeff = this.q.modInverse(this.p);	// this.coeff = (q ^ -1) mod p

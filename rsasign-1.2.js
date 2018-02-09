@@ -10,7 +10,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license/
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -121,7 +121,7 @@ function pss_mgf1_str(seed, len, hash) {
  * @return returns hexadecimal string of signature value.
  */
 function _rsasign_signStringPSS(s, hashAlg, sLen) {
-    var hashFunc = function(sHex) { return KJUR.crypto.Util.hashHex(sHex, hashAlg); } 
+    var hashFunc = function(sHex) { return KJUR.crypto.Util.hashHex(sHex, hashAlg); }
     var hHash = hashFunc(rstrtohex(s));
 
     if (sLen === undefined) sLen = -1;
@@ -152,18 +152,18 @@ function _rsasign_signWithMessageHashPSS(hHash, hashAlg, sLen) {
     var emBits = this.n.bitLength() - 1;
     var emLen = Math.ceil(emBits / 8);
     var i;
-    var hashFunc = function(sHex) { return KJUR.crypto.Util.hashHex(sHex, hashAlg); } 
+    var hashFunc = function(sHex) { return KJUR.crypto.Util.hashHex(sHex, hashAlg); }
 
     if (sLen === -1 || sLen === undefined) {
         sLen = hLen; // same as hash length
     } else if (sLen === -2) {
         sLen = emLen - hLen - 2; // maximum
     } else if (sLen < -2) {
-        throw "invalid salt length";
+        throw new Error("invalid salt length");
     }
 
     if (emLen < (hLen + sLen + 2)) {
-        throw "data too long";
+        throw new Error("data too long");
     }
 
     var salt = '';
@@ -268,7 +268,7 @@ function _rsasign_verifyString(sMsg, hSig) {
     var biDecryptedSig = this.doPublic(biSig);
     var hDigestInfo = biDecryptedSig.toString(16).replace(/^1f+00/, '');
     var digestInfoAry = _rsasign_getAlgNameAndHashFromHexDisgestInfo(hDigestInfo);
-  
+
     if (digestInfoAry.length == 0) return false;
     var algName = digestInfoAry[0];
     var diHashValue = digestInfoAry[1];
@@ -296,7 +296,7 @@ function _rsasign_verifyWithMessageHash(sHashHex, hSig) {
     var biDecryptedSig = this.doPublic(biSig);
     var hDigestInfo = biDecryptedSig.toString(16).replace(/^1f+00/, '');
     var digestInfoAry = _rsasign_getAlgNameAndHashFromHexDisgestInfo(hDigestInfo);
-  
+
     if (digestInfoAry.length == 0) return false;
     var algName = digestInfoAry[0];
     var diHashValue = digestInfoAry[1];
@@ -367,11 +367,11 @@ function _rsasign_verifyWithMessageHashPSS(hHash, hSig, hashAlg, sLen) {
     } else if (sLen === -2) {
         sLen = emLen - hLen - 2; // recover
     } else if (sLen < -2) {
-        throw "invalid salt length";
+        throw new Error("invalid salt length");
     }
 
     if (emLen < (hLen + sLen + 2)) {
-        throw "data too long";
+        throw new Error("data too long");
     }
 
     var em = this.doPublic(biSig).toByteArray();
@@ -385,7 +385,7 @@ function _rsasign_verifyWithMessageHashPSS(hHash, hSig, hashAlg, sLen) {
     }
 
     if (em[emLen -1] !== 0xbc) {
-        throw "encoded message does not end in 0xbc";
+        throw new Error("encoded message does not end in 0xbc");
     }
 
     em = String.fromCharCode.apply(String, em);
@@ -396,7 +396,7 @@ function _rsasign_verifyWithMessageHashPSS(hHash, hSig, hashAlg, sLen) {
     var mask = (0xff00 >> (8 * emLen - emBits)) & 0xff;
 
     if ((maskedDB.charCodeAt(0) & mask) !== 0) {
-        throw "bits beyond keysize not zero";
+        throw new Error("bits beyond keysize not zero");
     }
 
     var dbMask = pss_mgf1_str(H, maskedDB.length, hashFunc);
@@ -412,12 +412,12 @@ function _rsasign_verifyWithMessageHashPSS(hHash, hSig, hashAlg, sLen) {
 
     for (i = 0; i < checkLen; i += 1) {
         if (DB[i] !== 0x00) {
-            throw "leftmost octets not zero";
+            throw new Error("leftmost octets not zero");
         }
     }
 
     if (DB[checkLen] !== 0x01) {
-        throw "0x01 marker not found";
+        throw new Error("0x01 marker not found");
     }
 
     return H === hextorstr(hashFunc(rstrtohex('\x00\x00\x00\x00\x00\x00\x00\x00' + mHash +

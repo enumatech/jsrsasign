@@ -8,7 +8,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsrsasign/license
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  */
 
@@ -27,7 +27,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
 /**
  * ASN.1 classes for OCSP protocol<br/>
  * <p>
- * This name space provides 
+ * This name space provides
  * <a href="https://tools.ietf.org/html/rfc6960">RFC 6960
  * Online Certificate Status Protocol (OCSP)</a> ASN.1 request and response generator.
  *
@@ -35,10 +35,10 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * <ul>
  * <li>easily generate OCSP data</li>
  * </ul>
- * 
+ *
  * <h4>PROVIDED CLASSES</h4>
  * <ul>
- * <li>{@link KJUR.asn1.ocsp.CertID} for ASN.1 class as defined in 
+ * <li>{@link KJUR.asn1.ocsp.CertID} for ASN.1 class as defined in
  * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>. </li>
  * <li>{@link KJUR.asn1.ocsp.Request} for ASN.1 class as defined in
  * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>. </li>
@@ -64,8 +64,8 @@ KJUR.asn1.ocsp.DEFAULT_HASH = "sha1";
  * @extends KJUR.asn1.ASN1Object
  * @since jsrsasign 6.1.0 asn1ocsp 1.0.0
  * @description
- * CertID ASN.1 class is defined in 
- * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>. 
+ * CertID ASN.1 class is defined in
+ * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>.
  * <pre>
  * CertID ::= SEQUENCE {
  *   hashAlgorithm   AlgorithmIdentifier,
@@ -151,11 +151,11 @@ KJUR.asn1.ocsp.CertID = function(params) {
     };
 
     this.getEncodedHex = function() {
-	if (this.dHashAlg === null && 
+	if (this.dHashAlg === null &&
 	    this.dIssuerNameHash === null &&
 	    this.dIssuerKeyHash === null &&
 	    this.dSerialNumber === null)
-	    throw "not yet set values";
+	    throw new Error("not yet set values");
 
 	var a = [this.dHashAlg, this.dIssuerNameHash,
 		 this.dIssuerKeyHash, this.dSerialNumber];
@@ -178,7 +178,7 @@ KJUR.asn1.ocsp.CertID = function(params) {
 	    if (typeof p.alg === "undefined") alg = undefined;
 	    this.setByValue(p.namehash, p.keyhash, p.serial, alg);
 	} else {
-	    throw "invalid constructor arguments";
+	    throw new Error("invalid constructor arguments");
 	}
     }
 };
@@ -192,8 +192,8 @@ YAHOO.lang.extend(KJUR.asn1.ocsp.CertID, KJUR.asn1.ASN1Object);
  * @extends KJUR.asn1.ASN1Object
  * @since jsrsasign 6.1.0 asn1ocsp 1.0.0
  * @description
- * Request ASN.1 class is defined in 
- * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>. 
+ * Request ASN.1 class is defined in
+ * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>.
  * singleRequestExtensions is not supported yet in this version such as nonce.
  * <pre>
  * Request ::= SEQUENCE {
@@ -214,13 +214,13 @@ KJUR.asn1.ocsp.Request = function(params) {
     KJUR.asn1.ocsp.Request.superclass.constructor.call(this);
     this.dReqCert = null;
     this.dExt = null;
-    
+
     this.getEncodedHex = function() {
 	var a = [];
 
 	// 1. reqCert
 	if (this.dReqCert === null)
-	    throw "reqCert not set";
+	    throw new Error("reqCert not set");
 	a.push(this.dReqCert);
 
 	// 2. singleRequestExtensions (not supported yet)
@@ -246,8 +246,8 @@ YAHOO.lang.extend(KJUR.asn1.ocsp.Request, KJUR.asn1.ASN1Object);
  * @extends KJUR.asn1.ASN1Object
  * @since jsrsasign 6.1.0 asn1ocsp 1.0.0
  * @description
- * TBSRequest ASN.1 class is defined in 
- * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>. 
+ * TBSRequest ASN.1 class is defined in
+ * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>.
  * <pre>
  * TBSRequest ::= SEQUENCE {
  *   version            [0] EXPLICIT Version DEFAULT v1,
@@ -299,20 +299,20 @@ KJUR.asn1.ocsp.TBSRequest = function(params) {
 
 	// 1. version
 	if (this.version !== 0)
-	    throw "not supported version: " + this.version;
+	    throw new Error("not supported version: " + this.version);
 
 	// 2. requestorName
 	if (this.dRequestorName !== null)
-	    throw "requestorName not supported";
+	    throw new Error("requestorName not supported");
 
 	// 3. requestList
-	var seqRequestList = 
+	var seqRequestList =
 	    new KJUR.asn1.DERSequence({array: this.dRequestList});
 	a.push(seqRequestList);
 
 	// 4. requestExtensions
 	if (this.dRequestExt !== null)
-	    throw "requestExtensions not supported";
+	    throw new Error("requestExtensions not supported");
 
 	// 5. construct SEQUENCE
 	var seq = new KJUR.asn1.DERSequence({array: a});
@@ -336,8 +336,8 @@ YAHOO.lang.extend(KJUR.asn1.ocsp.TBSRequest, KJUR.asn1.ASN1Object);
  * @extends KJUR.asn1.ASN1Object
  * @since jsrsasign 6.1.0 asn1ocsp 1.0.0
  * @description
- * OCSPRequest ASN.1 class is defined in 
- * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>. 
+ * OCSPRequest ASN.1 class is defined in
+ * <a href="https://tools.ietf.org/html/rfc6960#section-4.1.1">RFC 6960 4.1.1</a>.
  * A signed request is not supported yet in this version.
  * <pre>
  * OCSPRequest ::= SEQUENCE {
@@ -365,12 +365,12 @@ KJUR.asn1.ocsp.OCSPRequest = function(params) {
 	if (this.dTbsRequest !== null) {
 	    a.push(this.dTbsRequest);
 	} else {
-	    throw "tbsRequest not set";
+	    throw new Error("tbsRequest not set");
 	}
 
 	// 2. optionalSignature
 	if (this.dOptionalSignature !== null)
-	    throw "optionalSignature not supported";
+	    throw new Error("optionalSignature not supported");
 
 	// 3. construct SEQUENCE
 	var seq = new KJUR.asn1.DERSequence({array: a});
@@ -459,7 +459,7 @@ KJUR.asn1.ocsp.OCSPUtil.getOCSPResponseInfo = function(h) {
 	    result.certStatus = "good";
 	} else if (h.substr(idxCertStatus, 2) === "a1") {
 	    result.certStatus = "revoked";
-	    result.revocationTime = 
+	    result.revocationTime =
 		hextoutf8(ASN1HEX.getDecendantHexVByNthList(h, idxCertStatus, [0]));
 	} else if (h.substr(idxCertStatus, 2) === "82") {
 	    result.certStatus = "unknown";
@@ -476,7 +476,7 @@ KJUR.asn1.ocsp.OCSPUtil.getOCSPResponseInfo = function(h) {
     try {
 	var idxEncapNextUpdate = ASN1HEX.getDecendantIndexByNthList(h, 0, [1,0,1,0,0,2,0,3]);
 	if (h.substr(idxEncapNextUpdate, 2) === "a0") {
-	    result.nextUpdate = 
+	    result.nextUpdate =
 		hextoutf8(ASN1HEX.getDecendantHexVByNthList(h, idxEncapNextUpdate, [0]));
 	}
     } catch (ex) {};

@@ -2,7 +2,7 @@
  */
 /*
  * dsa-modified.js - modified DSA class of OpenPGP-JS
- * 
+ *
  * Copyright (c) 2011-2013 Recurity Labs GmbH (github.com/openpgpjs)
  *                         Kenji Urushima (kenji.urushima@gmail.com)
  * LICENSE
@@ -111,11 +111,11 @@ KJUR.crypto.DSA = function() {
 
 	var k = getRandomBigIntegerInRange(BigInteger.ONE.add(BigInteger.ONE),
 					   q.subtract(BigInteger.ONE));
-	var s1 = (g.modPow(k,p)).mod(q); 
+	var s1 = (g.modPow(k,p)).mod(q);
 	var s2 = (k.modInverse(q).multiply(hash.add(x.multiply(s1)))).mod(q);
 
 	var result = KJUR.asn1.ASN1Util.jsonToASN1HEX({
-		'seq': [{'int': {'bigint': s1}}, {'int': {'bigint': s2}}] 
+		'seq': [{'int': {'bigint': s1}}, {'int': {'bigint': s2}}]
 	    });
 	return result;
     };
@@ -149,7 +149,7 @@ KJUR.crypto.DSA = function() {
 	    s1.compareTo(q) > 0 ||
 	    BigInteger.ZERO.compareTo(s2) > 0 ||
 	    s2.compareTo(q) > 0) {
-	    throw "invalid DSA signature";
+	    throw new Error("invalid DSA signature");
 	}
 	var w = s2.modInverse(q);
 	var u1 = hash.multiply(w).mod(q);
@@ -173,7 +173,7 @@ KJUR.crypto.DSA = function() {
 	    var s2 = new BigInteger(ASN1HEX.getVbyList(hSigVal, 0, [1], "02"), 16);
 	    return [s1, s2];
 	} catch (ex) {
-	    throw "malformed DSA signature";
+	    throw new Error("malformed DSA signature");
 	}
     }
 
@@ -192,7 +192,7 @@ KJUR.crypto.DSA = function() {
 
 	var k = getRandomBigIntegerInRange(BigInteger.ONE.add(BigInteger.ONE),
 					   q.subtract(BigInteger.ONE));
-	var s1 = (g.modPow(k,p)).mod(q); 
+	var s1 = (g.modPow(k,p)).mod(q);
 	var s2 = (k.modInverse(q).multiply(hash.add(x.multiply(s1)))).mod(q);
 	var result = new Array();
 	result[0] = s1;
@@ -229,11 +229,11 @@ KJUR.crypto.DSA = function() {
 	default:
 	    util.print_debug("DSA select hash algorithm: returning null for an unknown length of q");
 	    return null;
-	    
+
 	}
     }
     this.select_hash_algorithm = select_hash_algorithm;
-	
+
     function verify(hashalgo, s1,s2,m,p,q,g,y) {
 	var hashHex = KJUR.crypto.Util.hashString(m, hashalgo.toLowerCase());
 	var hashHex = hashHex.substr(0, q.bitLength() / 4);
@@ -252,7 +252,7 @@ KJUR.crypto.DSA = function() {
 	var dopublic = g.modPow(u1,p).multiply(y.modPow(u2,p)).mod(p).mod(q);
 	return dopublic.compareTo(s1) == 0;
     }
-	
+
     /*
      * unused code. This can be used as a start to write a key generator
      * function.
@@ -282,7 +282,7 @@ KJUR.crypto.DSA = function() {
 	} while (!pTemp.isProbablePrime(primeCenterie) || pTemp.bitLength() != l);
 	return pTemp;
     }
-	
+
     function generateG(p, q, bitlength, randomfn) {
 	var aux = p.subtract(BigInteger.ONE);
 	var pow = aux.divide(q);
@@ -317,7 +317,7 @@ KJUR.crypto.DSA = function() {
     // this.generate = generateKey;
 
     //
-    // METHODS FROM 
+    // METHODS FROM
     // https://github.com/openpgpjs/openpgpjs/blob/master/src/ciphers/openpgp.crypto.js
     //
     function getRandomBigIntegerInRange(min, max) {
@@ -335,7 +335,7 @@ KJUR.crypto.DSA = function() {
 	if (bits < 0)
 	    return null;
 	var numBytes = Math.floor((bits+7)/8);
-	    
+
 	var randomBits = getRandomBytes(numBytes);
 	if (bits % 8 > 0) {
 	    randomBits = String.fromCharCode((Math.pow(2,bits % 8)-1) &

@@ -10,7 +10,7 @@
  * This software is licensed under the terms of the MIT License.
  * http://kjur.github.com/jsjws/license/
  *
- * The above copyright and license notice shall be 
+ * The above copyright and license notice shall be
  * included in all copies or substantial portions of the Software.
  *
  * DEPENDS ON:
@@ -70,7 +70,7 @@ KJUR.lang.String = function() {};
  * </ul>
  * All functions in 'base64x.js' are defined in {@link _global_} and not
  * in this class.
- * 
+ *
  * @class Base64URL and supplementary functions for Tom Wu's base64.js library
  * @author Kenji Urushima
  * @version 1.1 (07 May 2012)
@@ -85,7 +85,7 @@ function Base64x() {
 /**
  * convert a string to an array of character codes
  * @param {String} s
- * @return {Array of Numbers} 
+ * @return {Array of Numbers}
  */
 function stoBA(s) {
     var a = new Array();
@@ -396,7 +396,7 @@ function b64nltohex(s) {
     var b64 = s.replace(/[^0-9A-Za-z\/+=]*/g, '');
     var hex = b64tohex(b64);
     return hex;
-} 
+}
 
 // ==== hex / ArrayBuffer =================================
 
@@ -416,8 +416,8 @@ function b64nltohex(s) {
  * ArrayBuffertohex(buffer) &rarr "fafb01"
  */
 function hextoArrayBuffer(hex) {
-    if (hex.length % 2 != 0) throw "input is not even length";
-    if (hex.match(/^[0-9A-Fa-f]+$/) == null) throw "input is not hexadecimal";
+    if (hex.length % 2 != 0) throw new Error("input is not even length");
+    if (hex.match(/^[0-9A-Fa-f]+$/) == null) throw new Error("input is not hexadecimal");
 
     var buffer = new ArrayBuffer(hex.length / 2);
     var view = new DataView(buffer);
@@ -478,7 +478,7 @@ function hextouricmp(s) {
  * convert UTFa hexadecimal string to a URLComponent string such like "%67%68".<br/>
  * Note that these "<code>0-9A-Za-z!'()*-._~</code>" characters will not
  * converted to "%xx" format by builtin 'encodeURIComponent()' function.
- * However this 'encodeURIComponentAll()' function will convert 
+ * However this 'encodeURIComponentAll()' function will convert
  * all of characters into "%xx" format.
  * @param {String} s hexadecimal string
  * @return {String} URIComponent string such like "%67%68"
@@ -500,9 +500,9 @@ function encodeURIComponentAll(u8) {
 
 // ==== new lines ================================
 /**
- * convert all DOS new line("\r\n") to UNIX new line("\n") in 
+ * convert all DOS new line("\r\n") to UNIX new line("\n") in
  * a String "s".
- * @param {String} s string 
+ * @param {String} s string
  * @return {String} converted string
  */
 function newline_toUnix(s) {
@@ -511,9 +511,9 @@ function newline_toUnix(s) {
 }
 
 /**
- * convert all UNIX new line("\r\n") to DOS new line("\n") in 
+ * convert all UNIX new line("\r\n") to DOS new line("\n") in
  * a String "s".
- * @param {String} s string 
+ * @param {String} s string
  * @return {String} converted string
  */
 function newline_toDos(s) {
@@ -651,10 +651,10 @@ KJUR.lang.String.isIntegerArray = function(s) {
  * @throws "malformed integer array string: *" for wrong input
  * @description
  * This function converts a string of JavaScript integer array to
- * a hexadecimal string. Each integer value shall be in a range 
+ * a hexadecimal string. Each integer value shall be in a range
  * from 0 to 255 otherwise it raise exception. Input string can
  * have extra space or newline string so that they will be ignored.
- * 
+ *
  * @example
  * intarystrtohex(" [123, 34, 101, 34, 58] ")
  * -> 7b2265223a (i.e. `{"e":` as string)
@@ -666,13 +666,13 @@ function intarystrtohex(s) {
   try {
     var hex = s.split(/,/).map(function(element, index, array) {
       var i = parseInt(element);
-      if (i < 0 || 255 < i) throw "integer not in range 0-255";
+      if (i < 0 || 255 < i) throw new Error("integer not in range 0-255");
       var hI = ("00" + i.toString(16)).slice(-2);
       return hI;
     }).join('');
     return hex;
   } catch(ex) {
-    throw "malformed integer array string: " + ex;
+    throw new Error("malformed integer array string: " + ex);
   }
 }
 
