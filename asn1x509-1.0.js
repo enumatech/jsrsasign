@@ -72,6 +72,7 @@ if (typeof KJUR.asn1 == "undefined" || !KJUR.asn1) KJUR.asn1 = {};
  * <li>{@link KJUR.asn1.x509.CRLDistributionPoints}</li>
  * <li>{@link KJUR.asn1.x509.ExtKeyUsage}</li>
  * <li>{@link KJUR.asn1.x509.AuthorityKeyIdentifier}</li>
+ * <li>{@link KJUR.asn1.x509.SubjectKeyIdentifier}</li>
  * <li>{@link KJUR.asn1.x509.AuthorityInfoAccess}</li>
  * </ul>
  * NOTE: Please ignore method summary and document of this namespace. This caused by a bug of jsdoc2.
@@ -427,7 +428,8 @@ KJUR.asn1.x509.TBSCertificate = function(params) {
      * tbsc.appendExtensionByName('CRLDistributionPoints', {uri: 'http://aaa.com/a.crl'});
      * tbsc.appendExtensionByName('ExtKeyUsage', {array: [{name: 'clientAuth'}]});
      * tbsc.appendExtensionByName('AuthorityKeyIdentifier', {kid: '1234ab..'});
-     * tbsc.appendExtensionByName('AuthorityInfoAccess', {kid: '1234ab..'});
+     * tbsc.appendExtensionByName('SubjectKeyIdentifier', {hex: '1234ab..'});
+     * tbsc.appendExtensionByName('AuthorityInfoAccess', {...});
      * @see KJUR.asn1.x509.Extension
      */
     this.appendExtensionByName = function(name, extParams) {
@@ -445,6 +447,9 @@ KJUR.asn1.x509.TBSCertificate = function(params) {
             this.appendExtension(extObj);
         } else if (name.toLowerCase() == "authoritykeyidentifier") {
             var extObj = new KJUR.asn1.x509.AuthorityKeyIdentifier(extParams);
+            this.appendExtension(extObj);
+        } else if (name.toLowerCase() == "subjectkeyidentifier") {
+            var extObj = new KJUR.asn1.x509.SubjectKeyIdentifier(extParams);
             this.appendExtension(extObj);
         } else if (name.toLowerCase() == "authorityinfoaccess") {
             var extObj = new KJUR.asn1.x509.AuthorityInfoAccess(extParams);
@@ -751,7 +756,7 @@ KJUR.asn1.x509.AuthorityKeyIdentifier = function(params) {
      * certificate will be supported in future version.
      */
     this.setCertIssuerByParam = function(param) {
-        this.asn1CertIssuer = new KJUR.asn1.x509.X500Name(param);
+        this.asn1CertIssuer = new KJUR.asn1.x509.GeneralNames(param);
     };
 
     /**
@@ -783,6 +788,54 @@ KJUR.asn1.x509.AuthorityKeyIdentifier = function(params) {
     }
 };
 YAHOO.lang.extend(KJUR.asn1.x509.AuthorityKeyIdentifier, KJUR.asn1.x509.Extension);
+
+/**
+ * SubjectKeyIdentifier ASN.1 structure class
+ * @name KJUR.asn1.x509.SubjectKeyIdentifier
+ * @class SubjectKeyIdentifier ASN.1 structure class
+ * @param {Array} params associative array of parameters (ex. {'uri': 'http://a.com/', 'critical': true})
+ * @extends KJUR.asn1.x509.Extension
+ * @since asn1x509 1.0.8
+ * @description
+ * <pre>
+ * id-ce-subjectKeyIdentifier OBJECT IDENTIFIER ::=  { id-ce 14 }
+ * SubjectKeyIdentifier ::= KeyIdentifier
+ * KeyIdentifier ::= OCTET STRING
+ * </pre>
+ * @example
+ * var param = {'kid': {'hex': '89ab'},
+ *              'critical': true});
+ * var e1 = new KJUR.asn1.x509.SubjectKeyIdentifier(param);
+ */
+KJUR.asn1.x509.SubjectKeyIdentifier = function(params) {
+    KJUR.asn1.x509.SubjectKeyIdentifier.superclass.constructor.call(this, params);
+    this.asn1KID = null;
+
+    this.getExtnValueHex = function() {
+        return this.asn1KID.getEncodedHex();
+    };
+
+    /**
+     * set keyIdentifier value by DERInteger parameter
+     * @name setKIDByParam
+     * @memberOf KJUR.asn1.x509.SubjectKeyIdentifier
+     * @function
+     * @param {Object} param {@link KJUR.asn1.DEROctetString} parameter
+     * @since asn1x509 6.0.8
+     * @description
+     * NOTE: Automatic keyIdentifier value calculation by an issuer
+     * public key will be supported in future version.
+     */
+    this.setKIDByParam = function(param) {
+        this.asn1KID = new KJUR.asn1.DEROctetString(param);
+    };
+
+    this.oid = "2.5.29.14";
+    if (typeof params != "undefined") {
+        this.setKIDByParam(params);
+    }
+};
+YAHOO.lang.extend(KJUR.asn1.x509.SubjectKeyIdentifier, KJUR.asn1.x509.Extension);
 
 /**
  * AuthorityInfoAccess ASN.1 structure class
