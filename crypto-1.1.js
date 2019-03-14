@@ -498,6 +498,7 @@ KJUR.crypto.MessageDigest = function(params) {
 };
 
 /**
+<<<<<<< HEAD
  * get canonical hash algorithm name<br/>
  * @name getCanonicalAlgName
  * @memberOf KJUR.crypto.MessageDigest
@@ -557,6 +558,8 @@ KJUR.crypto.MessageDigest.HASHLENGTH = {
 // === Mac ===============================================================
 
 /**
+=======
+>>>>>>> 5567926c756b0bca243da58a32e7c9c6ffdd4fda
  * Mac(Message Authentication Code) class which is very similar to java.security.Mac class
  * @name KJUR.crypto.Mac
  * @class Mac class which is very similar to java.security.Mac class
