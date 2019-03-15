@@ -254,7 +254,9 @@ function X509() {
     this.readCertPEMWithoutRSAInit = function(sCertPEM) {
         var hCert = X509.pemToHex(sCertPEM);
         var a = X509.getPublicKeyHexArrayFromCertHex(hCert);
-        this.subjectPublicKeyRSA.setPublic(a[0], a[1]);
+        if (typeof this.subjectPublicKeyRSA.setPublic === "function") {
+            this.subjectPublicKeyRSA.setPublic(a[0], a[1]);
+        }
         this.subjectPublicKeyRSA_hN = a[0];
         this.subjectPublicKeyRSA_hE = a[1];
         this.hex = hCert;

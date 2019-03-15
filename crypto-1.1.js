@@ -1,4 +1,4 @@
-/*! crypto-1.1.9.js (c) 2013-2016 Kenji Urushima | kjur.github.com/jsrsasign/license
+/*! crypto-1.1.10.js (c) 2013-2016 Kenji Urushima | kjur.github.com/jsrsasign/license
  */
 /*
  * crypto.js - Cryptographic Algorithm Provider class
@@ -16,7 +16,7 @@
  * @fileOverview
  * @name crypto-1.1.js
  * @author Kenji Urushima kenji.urushima@gmail.com
- * @version 1.1.9 (2016-Oct-08)
+ * @version 1.1.10 (2016-Oct-29)
  * @since jsrsasign 2.2
  * @license <a href="http://kjur.github.io/jsrsasign/license/">MIT License</a>
  */
@@ -34,6 +34,7 @@ if (typeof KJUR == "undefined" || !KJUR) KJUR = {};
  * <ul>
  * <li>{@link KJUR.crypto.MessageDigest} - Java JCE(cryptograhic extension) style MessageDigest class</li>
  * <li>{@link KJUR.crypto.Signature} - Java JCE(cryptograhic extension) style Signature class</li>
+ * <li>{@link KJUR.crypto.Cipher} - class for encrypting and decrypting data</li>
  * <li>{@link KJUR.crypto.Util} - cryptographic utility functions and properties</li>
  * </ul>
  * NOTE: Please ignore method summary and document of this namespace. This caused by a bug of jsdoc2.
@@ -285,11 +286,14 @@ KJUR.crypto.Util = new function() {
     };
 };
 
+// === Mac ===============================================================
+
 /**
- * MessageDigest class which is very similar to java.security.MessageDigest class
+ * MessageDigest class which is very similar to java.security.MessageDigest class<br/>
  * @name KJUR.crypto.MessageDigest
  * @class MessageDigest class which is very similar to java.security.MessageDigest class
  * @param {Array} params parameters for constructor
+ * @property {Array} HASHLENGTH static Array of resulted byte length of hash (ex. HASHLENGTH["sha1"] == 20)
  * @description
  * <br/>
  * Currently this supports following algorithm and providers combination:
@@ -313,6 +317,10 @@ KJUR.crypto.Util = new function() {
  * var md = new KJUR.crypto.MessageDigest({alg: "sha256", prov: "sjcl"}); // sjcl supports sha256 only
  * md.updateString('aaa')
  * var mdHex = md.digest()
+ *
+ * // HASHLENGTH property
+ * KJUR.crypto.MessageDigest.HASHLENGTH['sha1'] &rarr 20
+ * KJUR.crypto.MessageDigest.HASHLENGTH['sha512'] &rarr 64
  */
 KJUR.crypto.MessageDigest = function(params) {
     var md = null;
@@ -320,21 +328,38 @@ KJUR.crypto.MessageDigest = function(params) {
     var provName = null;
 
     /**
-     * set hash algorithm and provider
+     * set hash algorithm and provider<br/>
      * @name setAlgAndProvider
-     * @memberOf KJUR.crypto.MessageDigest
+     * @memberOf KJUR.crypto.MessageDigest#
      * @function
      * @param {String} alg hash algorithm name
      * @param {String} prov provider name
      * @description
+     * This methods set an algorithm and a cryptographic provider.<br/>
+     * Here is acceptable algorithm names ignoring cases and hyphens:
+     * <ul>
+     * <li>MD5</li>
+     * <li>SHA1</li>
+     * <li>SHA224</li>
+     * <li>SHA256</li>
+     * <li>SHA384</li>
+     * <li>SHA512</li>
+     * <li>RIPEMD160</li>
+     * </ul>
+     * NOTE: Since jsrsasign 6.2.0 crypto 1.1.10, this method ignores
+     * upper or lower cases. Also any hyphens (i.e. "-") will be ignored
+     * so that "SHA1" or "SHA-1" will be acceptable.
      * @example
      * // for SHA1
      * md.setAlgAndProvider('sha1', 'cryptojs');
+     * md.setAlgAndProvider('SHA1');
      * // for RIPEMD160
      * md.setAlgAndProvider('ripemd160', 'cryptojs');
      */
     this.setAlgAndProvider = function(alg, prov) {
-	if (alg != null && prov === undefined) prov = KJUR.crypto.Util.DEFAULTPROVIDER[alg];
+	alg = KJUR.crypto.MessageDigest.getCanonicalAlgName(alg);
+
+	if (alg !== null && prov === undefined) prov = KJUR.crypto.Util.DEFAULTPROVIDER[alg];
 
 	// for cryptojs
 	if (':md5:sha1:sha224:sha256:sha384:sha512:ripemd160:'.indexOf(alg) != -1 &&
@@ -396,7 +421,7 @@ KJUR.crypto.MessageDigest = function(params) {
     /**
      * update digest by specified string
      * @name updateString
-     * @memberOf KJUR.crypto.MessageDigest
+     * @memberOf KJUR.crypto.MessageDigest#
      * @function
      * @param {String} str string to update
      * @description
@@ -410,7 +435,7 @@ KJUR.crypto.MessageDigest = function(params) {
     /**
      * update digest by specified hexadecimal string
      * @name updateHex
-     * @memberOf KJUR.crypto.MessageDigest
+     * @memberOf KJUR.crypto.MessageDigest#
      * @function
      * @param {String} hex hexadecimal string to update
      * @description
@@ -424,7 +449,7 @@ KJUR.crypto.MessageDigest = function(params) {
     /**
      * completes hash calculation and returns hash result
      * @name digest
-     * @memberOf KJUR.crypto.MessageDigest
+     * @memberOf KJUR.crypto.MessageDigest#
      * @function
      * @description
      * @example
@@ -437,7 +462,7 @@ KJUR.crypto.MessageDigest = function(params) {
     /**
      * performs final update on the digest using string, then completes the digest computation
      * @name digestString
-     * @memberOf KJUR.crypto.MessageDigest
+     * @memberOf KJUR.crypto.MessageDigest#
      * @function
      * @param {String} str string to final update
      * @description
@@ -451,7 +476,7 @@ KJUR.crypto.MessageDigest = function(params) {
     /**
      * performs final update on the digest using hexadecimal string, then completes the digest computation
      * @name digestHex
-     * @memberOf KJUR.crypto.MessageDigest
+     * @memberOf KJUR.crypto.MessageDigest#
      * @function
      * @param {String} hex hexadecimal string to final update
      * @description
@@ -471,6 +496,65 @@ KJUR.crypto.MessageDigest = function(params) {
 	}
     }
 };
+
+/**
+ * get canonical hash algorithm name<br/>
+ * @name getCanonicalAlgName
+ * @memberOf KJUR.crypto.MessageDigest
+ * @function
+ * @param {String} alg hash algorithm name (ex. MD5, SHA-1, SHA1, SHA512 et.al.)
+ * @return {String} canonical hash algorithm name
+ * @since jsrsasign 6.2.0 crypto 1.1.10
+ * @description
+ * This static method normalizes from any hash algorithm name such as
+ * "SHA-1", "SHA1", "MD5", "sha512" to lower case name without hyphens
+ * such as "sha1".
+ * @example
+ * KJUR.crypto.MessageDigest.getCanonicalAlgName("SHA-1") &rarr "sha1"
+ * KJUR.crypto.MessageDigest.getCanonicalAlgName("MD5")   &rarr "md5"
+ */
+KJUR.crypto.MessageDigest.getCanonicalAlgName = function(alg) {
+    if (typeof alg === "string") {
+	alg = alg.toLowerCase();
+	alg = alg.replace(/-/, '');
+    }
+    return alg;
+};
+
+/**
+ * get resulted hash byte length for specified algorithm name<br/>
+ * @name getHashLength
+ * @memberOf KJUR.crypto.MessageDigest
+ * @function
+ * @param {String} alg non-canonicalized hash algorithm name (ex. MD5, SHA-1, SHA1, SHA512 et.al.)
+ * @return {Integer} resulted hash byte length
+ * @since jsrsasign 6.2.0 crypto 1.1.10
+ * @description
+ * This static method returns resulted byte length for specified algorithm name such as "SHA-1".
+ * @example
+ * KJUR.crypto.MessageDigest.getHashLength("SHA-1") &rarr 20
+ * KJUR.crypto.MessageDigest.getHashLength("sha1") &rarr 20
+ */
+KJUR.crypto.MessageDigest.getHashLength = function(alg) {
+    var MD = KJUR.crypto.MessageDigest
+    var alg2 = MD.getCanonicalAlgName(alg);
+    if (MD.HASHLENGTH[alg2] === undefined)
+	throw "not supported algorithm: " + alg;
+    return MD.HASHLENGTH[alg2];
+};
+
+// described in KJUR.crypto.MessageDigest class (since jsrsasign 6.2.0 crypto 1.1.10)
+KJUR.crypto.MessageDigest.HASHLENGTH = {
+    'md5':		16,
+    'sha1':		20,
+    'sha224':		28,
+    'sha256':		32,
+    'sha384':		48,
+    'sha512':		64,
+    'ripemd160':	20
+};
+
+// === Mac ===============================================================
 
 /**
  * Mac(Message Authentication Code) class which is very similar to java.security.Mac class
@@ -565,7 +649,7 @@ KJUR.crypto.Mac = function(params) {
     /**
      * update digest by specified string
      * @name updateString
-     * @memberOf KJUR.crypto.Mac
+     * @memberOf KJUR.crypto.Mac#
      * @function
      * @param {String} str string to update
      * @description
@@ -579,7 +663,7 @@ KJUR.crypto.Mac = function(params) {
     /**
      * update digest by specified hexadecimal string
      * @name updateHex
-     * @memberOf KJUR.crypto.Mac
+     * @memberOf KJUR.crypto.Mac#
      * @function
      * @param {String} hex hexadecimal string to update
      * @description
@@ -593,7 +677,7 @@ KJUR.crypto.Mac = function(params) {
     /**
      * completes hash calculation and returns hash result
      * @name doFinal
-     * @memberOf KJUR.crypto.Mac
+     * @memberOf KJUR.crypto.Mac#
      * @function
      * @description
      * @example
@@ -606,7 +690,7 @@ KJUR.crypto.Mac = function(params) {
     /**
      * performs final update on the digest using string, then completes the digest computation
      * @name doFinalString
-     * @memberOf KJUR.crypto.Mac
+     * @memberOf KJUR.crypto.Mac#
      * @function
      * @param {String} str string to final update
      * @description
@@ -621,7 +705,7 @@ KJUR.crypto.Mac = function(params) {
      * performs final update on the digest using hexadecimal string,
      * then completes the digest computation
      * @name doFinalHex
-     * @memberOf KJUR.crypto.Mac
+     * @memberOf KJUR.crypto.Mac#
      * @function
      * @param {String} hex hexadecimal string to final update
      * @description
@@ -635,7 +719,7 @@ KJUR.crypto.Mac = function(params) {
     /**
      * set password for Mac
      * @name setPassword
-     * @memberOf KJUR.crypto.Mac
+     * @memberOf KJUR.crypto.Mac#
      * @function
      * @param {Object} pass password for Mac
      * @since crypto 1.1.7 jsrsasign 4.9.0
@@ -723,6 +807,7 @@ KJUR.crypto.Mac = function(params) {
     }
 };
 
+// ====== Signature class =========================================================
 /**
  * Signature class which is very similar to java.security.Signature class
  * @name KJUR.crypto.Signature
@@ -837,7 +922,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * set signature algorithm and provider
      * @name setAlgAndProvider
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} alg signature algorithm name
      * @param {String} prov provider name
@@ -980,7 +1065,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Initialize this object for signing or verifying depends on key
      * @name init
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {Object} key specifying public or private key as plain/encrypted PKCS#5/8 PEM file, certificate PEM or {@link RSAKey}, {@link KJUR.crypto.DSA} or {@link KJUR.crypto.ECDSA} object
      * @param {String} pass (OPTION) passcode for encrypted private key
@@ -1020,7 +1105,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Initialize this object for verifying with a public key
      * @name initVerifyByPublicKey
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {Object} param RSAKey object of public key or associative array for ECDSA
      * @since 1.0.2
@@ -1045,7 +1130,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Initialize this object for verifying with a certficate
      * @name initVerifyByCertificatePEM
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} certPEM PEM formatted string of certificate
      * @since 1.0.2
@@ -1062,7 +1147,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Initialize this object for signing
      * @name initSign
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {Object} param RSAKey object of public key or associative array for ECDSA
      * @deprecated from crypto 1.1.5. please use init() method instead.
@@ -1084,7 +1169,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Updates the data to be signed or verified by a string
      * @name updateString
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} str string to use for the update
      * @description
@@ -1098,7 +1183,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Updates the data to be signed or verified by a hexadecimal string
      * @name updateHex
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} hex hexadecimal string to use for the update
      * @description
@@ -1112,7 +1197,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * Returns the signature bytes of all data updates as a hexadecimal string
      * @name sign
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @return the signature bytes as a hexadecimal string
      * @description
@@ -1126,7 +1211,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * performs final update on the sign using string, then returns the signature bytes of all data updates as a hexadecimal string
      * @name signString
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} str string to final update
      * @return the signature bytes of a hexadecimal string
@@ -1141,7 +1226,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * performs final update on the sign using hexadecimal string, then returns the signature bytes of all data updates as a hexadecimal string
      * @name signHex
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} hex hexadecimal string to final update
      * @return the signature bytes of a hexadecimal string
@@ -1156,7 +1241,7 @@ KJUR.crypto.Signature = function(params) {
     /**
      * verifies the passed-in signature.
      * @name verify
-     * @memberOf KJUR.crypto.Signature
+     * @memberOf KJUR.crypto.Signature#
      * @function
      * @param {String} str string to final update
      * @return {Boolean} true if the signature was verified, otherwise false
@@ -1201,6 +1286,129 @@ KJUR.crypto.Signature = function(params) {
     }
 };
 
+// ====== Cipher class ============================================================
+/**
+ * Cipher class to encrypt and decrypt data<br/>
+ * @name KJUR.crypto.Cipher
+ * @class Cipher class to encrypt and decrypt data<br/>
+ * @param {Array} params parameters for constructor
+ * @since jsrsasign 6.2.0 crypto 1.1.10
+ * @description
+ * Here is supported canonicalized cipher algorithm names and its standard names:
+ * <ul>
+ * <li>RSA - RSA/ECB/PKCS1Padding (default for RSAKey)</li>
+ * <li>RSAOAEP - RSA/ECB/OAEPWithSHA-1AndMGF1Padding</li>
+ * <li>RSAOAEP224 - RSA/ECB/OAEPWithSHA-224AndMGF1Padding(*)</li>
+ * <li>RSAOAEP256 - RSA/ECB/OAEPWithSHA-256AndMGF1Padding</li>
+ * <li>RSAOAEP384 - RSA/ECB/OAEPWithSHA-384AndMGF1Padding(*)</li>
+ * <li>RSAOAEP512 - RSA/ECB/OAEPWithSHA-512AndMGF1Padding(*)</li>
+ * </ul>
+ * NOTE: (*) is not supported in Java JCE.<br/>
+ * Currently this class supports only RSA encryption and decryption. 
+ * However it is planning to implement also symmetric ciphers near in the future.
+ * @example
+ */
+KJUR.crypto.Cipher = function(params) {
+};
+
+/**
+ * encrypt raw string by specified key and algorithm<br/>
+ * @name encrypt
+ * @memberOf KJUR.crypto.Cipher
+ * @function
+ * @param {String} s input string to encrypt
+ * @param {Object} keyObj RSAKey object or hexadecimal string of symmetric cipher key
+ * @param {String} algName short/long algorithm name for encryption/decryption
+ * @return {String} hexadecimal encrypted string
+ * @since jsrsasign 6.2.0 crypto 1.1.10
+ * @description
+ * This static method encrypts raw string with specified key and algorithm.
+ * @example 
+ * KJUR.crypto.Cipher.encrypt("aaa", pubRSAKeyObj) &rarr; "1abc2d..."
+ * KJUR.crypto.Cipher.encrypt("aaa", pubRSAKeyObj, "RSAOAEP) &rarr; "23ab02..."
+ */
+KJUR.crypto.Cipher.encrypt = function(s, keyObj, algName) {
+    if (keyObj instanceof RSAKey && keyObj.isPublic) {
+	var algName2 = KJUR.crypto.Cipher.getAlgByKeyAndName(keyObj, algName);
+	if (algName2 === "RSA") return keyObj.encrypt(s);
+	if (algName2 === "RSAOAEP") return keyObj.encryptOAEP(s, "sha1");
+
+	var a = algName2.match(/^RSAOAEP(\d+)$/);
+	if (a !== null) return keyObj.encryptOAEP(s, "sha" + a[1]);
+
+	throw "Cipher.encrypt: unsupported algorithm for RSAKey: " + algName;
+    } else {
+	throw "Cipher.encrypt: unsupported key or algorithm";
+    }
+};
+
+/**
+ * decrypt encrypted hexadecimal string with specified key and algorithm<br/>
+ * @name decrypt
+ * @memberOf KJUR.crypto.Cipher
+ * @function
+ * @param {String} hex hexadecial string of encrypted message
+ * @param {Object} keyObj RSAKey object or hexadecimal string of symmetric cipher key
+ * @param {String} algName short/long algorithm name for encryption/decryption
+ * @return {String} hexadecimal encrypted string
+ * @since jsrsasign 6.2.0 crypto 1.1.10
+ * @description
+ * This static method decrypts encrypted hexadecimal string with specified key and algorithm.
+ * @example 
+ * KJUR.crypto.Cipher.decrypt("aaa", prvRSAKeyObj) &rarr; "1abc2d..."
+ * KJUR.crypto.Cipher.decrypt("aaa", prvRSAKeyObj, "RSAOAEP) &rarr; "23ab02..."
+ */
+KJUR.crypto.Cipher.decrypt = function(hex, keyObj, algName) {
+    if (keyObj instanceof RSAKey && keyObj.isPrivate) {
+	var algName2 = KJUR.crypto.Cipher.getAlgByKeyAndName(keyObj, algName);
+	if (algName2 === "RSA") return keyObj.decrypt(hex);
+	if (algName2 === "RSAOAEP") return keyObj.decryptOAEP(hex, "sha1");
+
+	var a = algName2.match(/^RSAOAEP(\d+)$/);
+	if (a !== null) return keyObj.decryptOAEP(hex, "sha" + a[1]);
+
+	throw "Cipher.decrypt: unsupported algorithm for RSAKey: " + algName;
+    } else {
+	throw "Cipher.decrypt: unsupported key or algorithm";
+    }
+};
+
+/**
+ * get canonicalized encrypt/decrypt algorithm name by key and short/long algorithm name<br/>
+ * @name getAlgByKeyAndName
+ * @memberOf KJUR.crypto.Cipher
+ * @function
+ * @param {Object} keyObj RSAKey object or hexadecimal string of symmetric cipher key
+ * @param {String} algName short/long algorithm name for encryption/decryption
+ * @return {String} canonicalized algorithm name for encryption/decryption
+ * @since jsrsasign 6.2.0 crypto 1.1.10
+ * @description
+ * Here is supported canonicalized cipher algorithm names and its standard names:
+ * <ul>
+ * <li>RSA - RSA/ECB/PKCS1Padding (default for RSAKey)</li>
+ * <li>RSAOAEP - RSA/ECB/OAEPWithSHA-1AndMGF1Padding</li>
+ * <li>RSAOAEP224 - RSA/ECB/OAEPWithSHA-224AndMGF1Padding(*)</li>
+ * <li>RSAOAEP256 - RSA/ECB/OAEPWithSHA-256AndMGF1Padding</li>
+ * <li>RSAOAEP384 - RSA/ECB/OAEPWithSHA-384AndMGF1Padding(*)</li>
+ * <li>RSAOAEP512 - RSA/ECB/OAEPWithSHA-512AndMGF1Padding(*)</li>
+ * </ul>
+ * NOTE: (*) is not supported in Java JCE.
+ * @example 
+ * KJUR.crypto.Cipher.getAlgByKeyAndName(objRSAKey) &rarr; "RSA"
+ * KJUR.crypto.Cipher.getAlgByKeyAndName(objRSAKey, "RSAOAEP") &rarr; "RSAOAEP"
+ */
+KJUR.crypto.Cipher.getAlgByKeyAndName = function(keyObj, algName) {
+    if (keyObj instanceof RSAKey) {
+	if (":RSA:RSAOAEP:RSAOAEP224:RSAOAEP256:RSAOAEP384:RSAOAEP512:".indexOf(algName) != -1)
+	    return algName;
+	if (algName === null || algName === undefined) return "RSA";
+	throw "getAlgByKeyAndName: not supported algorithm name for RSAKey: " + algName;
+    }
+    throw "getAlgByKeyAndName: not supported algorithm name: " + algName;
+}
+
+// ====== Other Utility class =====================================================
+
 /**
  * static object for cryptographic function utilities
  * @name KJUR.crypto.OID
@@ -1210,8 +1418,6 @@ KJUR.crypto.Signature = function(params) {
  * @since crypto 1.1.3
  * @description
  */
-
-
 KJUR.crypto.OID = new function() {
     this.oidhex2name = {
 	'2a864886f70d010101': 'rsaEncryption',
