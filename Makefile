@@ -57,7 +57,7 @@ min/%.min.js: %.js
 all: npm/lib/jsrsasign.js min/nodeutil-1.0.min.js
 
 jsrsasign-latest-all-min.js: $(FILES)
-	cat $^ > jsrsasign-4.9.0-mdcone-all-min.js
+	cat $^ | sed "s/\/\*! /\n\/\*! /g" > jsrsasign-4.9.0-mdcone-all-min.js
 	cp jsrsasign-4.9.0-mdcone-all-min.js $@
 
 npm/lib/jsrsasign.js: npm/lib/header.js jsrsasign-latest-all-min.js npm/lib/footer.js
